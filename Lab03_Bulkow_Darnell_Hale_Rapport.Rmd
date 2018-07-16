@@ -1,0 +1,103 @@
+---
+title: "Lab 3: Reducing Crime"
+subtitle: "w203 Summer 2018"
+author: "Madeleine Bulkow, Kim Darnell, Alla Hale, Emily Rapport"
+date: \today
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introduction
+ Crime presents a problem in our society, and it is up to local government to implement policies to reduce it.  This report examines the available crime data to pick out the determininants of crime.  Based on this analysis, we generate several policy suggestions applicable to local government in North Carolina for the late 1980s.
+
+## 2. The Data
+ The data from 1987 were collected and combined by Cornwell and Trumball.  HERE IS WHERE WE DESCRIBE OUR DATA.
+ 
+## 3. Exploratory Data Analysis
+ First, we must evaluate the available data, clean it by removing anomolous values, and perhaps transform the data.  
+```{r}
+# Import the data
+df = read.csv("crime_v2.csv")
+#summary(df)
+```
+
+Clean up the apostrophe.
+
+It appears that probconv is in percent, while the other two probability estimates (prbarr and prbpris) are fractions. To be able to compare coefficients more easily, let's get all percentage values in percent (0-100).
+
+Remove the points where probabilities exceed 100 %.
+
+```{r}
+# Clean the data
+
+## NOTE FROM ALLA: This is just what I did to clean the data.  I am sure this can be done in a more efficient way.  Please just let me know what the final df is called so that I can update it in my models.
+df_calc <- df
+df_calc$prbconv <- as.numeric(as.numeric(df$prbconv))
+df_calc$prbarr <- df$prbarr * 100
+df_calc$prbpris <- df$prbpris * 100
+df_calc$pctymle <- df$pctymle * 100
+#summary(df_calc)
+df_clean <-df_calc[with(df_calc, prbarr <= 100 & wser <= 2000),]
+summary(df_clean)
+```
+
+## 4. The Models
+### 4.1 Model 1
+```{r}
+# Build Model 1
+# model 1: things that totally make sense and have good r^2. density, taxpc, pctymle.
+(model_1 = lm(crmrte ~ density + taxpc + pctymle, data = df_clean))
+summary(model_1)$r.square
+plot(model_1, which = 5)
+#(model_1 = lm(crmrte ~ prbarr + log(prbconv) + log(polpc) + density + taxpc + pctmin80 + pctymle , data = df_clean))
+```
+
+### 4.2 Model 2
+```{r}
+# Build Model 2
+# model 2: other things that are explanatory but maybe questionable: west, polpc, arrest/conviction, ppctmin80. 
+(model_2 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv, data = df_clean))
+summary(model_2)$r.square
+plot(model_2, which = 5)
+```
+
+### 4.3 Model 3
+```{r}
+# Build Model 3
+#model 3: not necessarily explanatory, but not problematic: central, avgsen, prison.
+(model_3 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv + central + avgsen + prbpris, data = df_clean))
+summary(model_3)$r.square
+plot(model_3, which = 5)
+```
+### 4.4 Model 4
+```{r}
+# Build Model 4
+# model 4: kitchen sink. urban, wage.
+(model_4 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv + central + avgsen + prbpris + wcon + wtuc + wtrd + wfir + wser + wmfg + wfed + wsta + wloc, data = df_clean))
+summary(model_4)$r.square
+plot(model_4, which = 5)
+```
+
+### 4.5 Model 5
+```{r}
+# Build Model 5
+# model 5: the model 1 version of a model for this dependent variable - crmrate*mix
+```
+
+### 4.2 Model Summary
+This is where we put our model summary table.
+```{r, results='asis'}
+library(stargazer)
+stargazer(model_1, model_2, model_3, model_4, type = "latex", 
+          report = "vc", # Don't report errors, since we haven't covered them
+          title = "Linear Models Predicting Crime Rate",
+          keep.stat = c("rsq", "n"),
+          omit.table.layout = "n") # Omit more output related to errors
+```
+
+## 5. Omitted Variables
+
+## 6. Conclusion
