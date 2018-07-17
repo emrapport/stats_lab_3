@@ -89,7 +89,7 @@ summary(df_clean)
 ```
 
 ##3. Building Models
-Our central goal for this analysis is to determine what variables are most associated with crime in North Carolina. For this reason, we will  use the crmrte variable as the outcome variable in most our models. Before we begin modeling, we need to examine our outcome variable.
+Our central goal for this analysis is to determine what variables are most associated with crime in North Carolina. For this reason, we will  use the crmrte variable as the outcome variable in most of our models. Before we begin modeling, we need to examine our outcome variable.
 
 ```{r}
 summary(df_clean$crmrte)
@@ -104,36 +104,111 @@ df_clean <- df_clean[complete.cases(df_clean$crmrte), ]
 We are left with 89 observations. A histogram of the observations shows us the shape of their distribution:
 
 ```{r}
-hist(df_clean$crmrte, main="Crime Rate for Individual Counties", xlab= "Crime Rate", ylab= "Number of Counties")
+hist(df_clean$crmrte, 
+     main="Crime Rate for Individual Counties", 
+     xlab= "Crime Rate", 
+     ylab= "Number of Counties")
 ```
 
 We see in this histogram that the data is right skewed; the majority of county's crime rates are below .04, while the long right tail demonstrates that a smaller number of counties have substantially higher crime rates. 
 
+
+
 ## 4. The Models
+
+We complete the model building process in 5 stages, resulting in 5 separate models.  
+
+The first four models are linear regressions of crime rate against increasing numbers of predictors.  The first model includes only variables we believe to be the main predictors of crime rate, density, tax per capita, and percent young male.  The second model includes several other factors we believe may be explanatory.  The third model adds the variables we have available, which are not problematic.  Finally, we show the fourth model, which includes the balance of variables, even those of questionable merit.  
+
+The fifth model, is a regression of the crime rate multiplied by the mix.  NEED MADELEINE'S INPUT HERE.  
+
 ### 4.1 Model 1
+
+Causes of crime have been debated, but we suspect that density, tax per capita, and percent young male are strong predictors of crime.  The dependent variable, crime rate, has already been assessed, so we evaluate these three predictor variables.
+
+Density:
+```{r}
+summary(df_clean$density)
+hist(df_clean$density,
+     main="Densities for Individual Counties", 
+     xlab= "Density", 
+     ylab= "Number of Counties",
+     breaks = 30)
+```
+
+The value of density ranges from approximately .00002 to 8.8 people per square mile, with a mean of 1.45. The distribution of county densities is right skewed, with most counties being sparse and a long tail of more populated counties. After reviewing the census data, it is logical to conclude that these numbers are in hundreds of people per square mile, but for consistency we will continue to use the people per square mile unit.   
+
+Tax per Capita:
+```{r}
+summary(df_clean$taxpc)
+hist(df_clean$taxpc,
+     main="Tax for Individual Counties", 
+     xlab= "Tax per Capita", 
+     ylab= "Number of Counties",
+     breaks = 30)
+```
+
+The value of tax per capita ranges from 25.69 to 119.76.  Once again, we see a dirstribution that is right skewed, with revenue in most counties below the mean of 38.13. The maximum value is much higher than the next highest value.  Though this is an interesting note, evaluating the row, we have no reason to doubt this data point.
+
+Percent Young Male:
+```{r}
+summary(df_clean$pctymle)
+hist(df_clean$pctymle,
+     main="Young Males for Individual Counties", 
+     xlab= "Percent Young Males", 
+     ylab= "Number of Counties",
+     breaks = 30)
+```
+
+The percent of young males ranges from 6.2 to 24.9 %.  Once again, we see a dirstribution that is right skewed, with revenue in most counties below the mean of 8.4 %. Again, we see the maximum value is much higher than the next highest value.  And again, we have no reason to doubt this data point.
+
+Before we build our model, we review the matrix of scatterplots of crime rate and the three variables evaluated above to identify any potential collinearity.
+```{r}
+# Import car package
+library(car)
+vars <- c("crmrte", "density", "taxpc","pctymle")
+scatterplotMatrix(df_clean[,vars], diagonal = "histogram")
+```
+
+As we suspected, crime rate looks well predicted by each of the three primary variables selected as evidenced by the fairly strong positive slopes in the bivariate regressions in the scatterplot matrix.  Additionally, though density and taxpc appear to have a positive correlation, none of the variables are collinear with any of the others.
+
+With the evaluation of the variables complete, we build model 1, and evaluate the Cook's Distance for the residuals:
 ```{r}
 # Build Model 1
-# model 1: things that totally make sense and have good r^2. density, taxpc, pctymle.
 (model_1 = lm(crmrte ~ density + taxpc + pctymle, data = df_clean))
 summary(model_1)$r.square
 plot(model_1, which = 5)
-#(model_1 = lm(crmrte ~ prbarr + log(prbconv) + log(polpc) + density + taxpc + pctmin80 + pctymle , data = df_clean))
 ```
+We find one point that has a Cook's Distance greater than 1, but with no justification to remove it from the dataset, we simply note it. 
 
 ### 4.2 Model 2
+
+Model 2 includes west, polpc, prbarr, and prbconv in addtion to the three variables from Model 1.  During our EDA, we found that each of these had interesting correlations with the variable of interest, crime rate.
+
+We conducted a full EDA on each of the explanatory variables, but for the sake of space, a simple matrix plot of the additional variables, other than west, is shown below.
+```{r}
+vars <- c("polpc", "prbarr", "prbconv","pctmin80")
+scatterplotMatrix(df_clean[,vars], diagonal = "histogram")
+```
+The matrix plot shows little correlation between most of the additional variables in this model.
+
 ```{r}
 # Build Model 2
 # model 2: other things that are explanatory but maybe questionable: west, polpc, arrest/conviction, ppctmin80. 
-(model_2 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv, data = df_clean))
+(model_2 = lm(crmrte ~ density + taxpc + pctymle 
+              + west + log(polpc) + prbarr + prbconv + pctmin80, 
+              data = df_clean))
 summary(model_2)$r.square
 plot(model_2, which = 5)
 ```
+
+Interestingly, the $R^2$ increased from 0.63 to 0.79 with these additional 5 variables included.
 
 ### 4.3 Model 3
 ```{r}
 # Build Model 3
 #model 3: not necessarily explanatory, but not problematic: central, avgsen, prison.
-(model_3 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv + central + avgsen + prbpris, data = df_clean))
+(model_3 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv + pctmin80 + central + avgsen + prbpris, data = df_clean))
 summary(model_3)$r.square
 plot(model_3, which = 5)
 ```
@@ -141,7 +216,7 @@ plot(model_3, which = 5)
 ```{r}
 # Build Model 4
 # model 4: kitchen sink. urban, wage.
-(model_4 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv + central + avgsen + prbpris + wcon + wtuc + wtrd + wfir + wser + wmfg + wfed + wsta + wloc, data = df_clean))
+(model_4 = lm(crmrte ~ density + taxpc + pctymle + west + log(polpc) + prbarr + prbconv + pctmin80 + central + avgsen + prbpris + urban + wcon + wtuc + wtrd + wfir + wser + wmfg + wfed + wsta + wloc, data = df_clean))
 summary(model_4)$r.square
 plot(model_4, which = 5)
 ```
