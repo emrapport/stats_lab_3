@@ -86,6 +86,7 @@ df_calc$prbconv <- as.numeric(as.numeric(df$prbconv))
 df_calc$prbarr <- df$prbarr * 100
 df_calc$prbpris <- df$prbpris * 100
 df_calc$pctymle <- df$pctymle * 100
+#(df_calc$county)
 #summary(df_calc)
 df_clean <-df_calc[with(df_calc, prbarr <= 100 & wser <= 2000),]
 ```
@@ -172,25 +173,32 @@ vars <- c("crmrte", "density", "taxpc","pctymle")
 suppressWarnings(scatterplotMatrix(df_clean[,vars], diagonal = "histogram"))
 ```
 
+Assumption 3: Multicollinearity
+Assumption 4: 0 conditional mean/exogeneity
+Assumption 5: Homoskedasticity
+Assumption 6: Normality of variance
+
 As we suspected, crime rate looks well predicted by each of the three primary variables selected as evidenced by the fairly strong positive slopes in the bivariate regressions in the scatterplot matrix.  Additionally, though density and taxpc appear to have a positive correlation, none of the variables are collinear with any of the others.
 
 With the evaluation of the variables complete, we build model 1, and evaluate the Cook's Distance for the residuals:
 ```{r fig.height=4, fig.width=5}
 # Build Model 1
-(model_1 = lm(crmrte ~ density + taxpc + pctymle, data = df_clean))
+(model_1 = lm(crmrte ~ density + taxpc + log(pctymle), data = df_clean))
 summary(model_1)$r.square
 plot(model_1, which = 5)
 ```
-We find one point that has a Cook's Distance greater than 1, but with no justification to remove it from the dataset, we simply note it. 
+We find one point that has a Cook's Distance greater than 1, Manteo county, but with no justification to remove it from the dataset, we simply note it. Of note, this county has the highest tax per capita, which could stem from its tourist destination status as the location of the Wright brothers' first flight.
+
+Write the model equation, and interpret direction and magnitude of coefficients.
 
 ### 4.2 Model 2
 
-Model 2 includes west, polpc, prbarr, and prbconv in addtion to the three variables from Model 1.  During our EDA, we found that each of these had interesting correlations with the variable of interest, crime rate.
+Model 2 includes west, polpc, prbarr, and prbconv in addtion to the three variables from Model 1.  During our EDA, we found that each of these had interesting correlations with the variable of interest, crime rate, leading to their inclusion.
 
 We conducted a full EDA on each of the explanatory variables, but for the sake of space, a simple matrix plot of the additional variables, other than west, is shown below.
 ```{r warnings = FALSE}
 vars <- c("polpc", "prbarr", "prbconv","pctmin80")
-suppressWarnings(scatterplotMatrix(df_clean[,vars], diagonal = "histogram"))
+supressWarnings(scatterplotMatrix(df_clean[,vars], diag = "histogram"))
 ```
 The matrix plot shows little correlation between most of the additional variables in this model.
 
@@ -240,6 +248,14 @@ stargazer(model_1, model_2, model_3, model_4, type = "latex",
 ```
 
 ## 5. Omitted Variables
+
+household earnings: we would expect coefficient on hh_earnings to be negative, since wealthier areas = less crime. We would expect correlation between household earnings and density to positive, because in cities people have higher salaries. Therefore, omitted variable bias is _negative_, and if we had household earnings, the fitted values for a given density value would likely be higher.
+
+socioeconomic disparity:
+
+unemployment rate: we would expect coefficient on unemployment rate to be positive, since more people without work = more people in desperate situations that lead to them breaking the law. We would expect correlation between unemployment and percent young male to be positive, since young men are most likely to be unemployed (I'm REALLY not sure about this one - if there's a better claim to be made with density, let's do it). Therefore, omitted variable bias is _positive_, and the fitted values would be lower for a given pctymle value if we had unemployment rate.
+
+education level: We would expect coefficient on education level to be negative, as when people have more education, they probably have more job opportunities --> less likelihood to commit crime. We would expect coefficient between education level and density to be positive, since people tend to be more educated in urban areas. Therefore, omitted variable bias is _negative_, and the fitted values for a given value of density would likely be lower if we could control for education level.
 
 ## 6. Conclusion
 - might be worth making a point about county as unit : might make sense since county likely determines different police/judicial jurisdictions, but certain elements in our model might not be consistent across whole county (i.e. density, tax rate in cities, etc.)
