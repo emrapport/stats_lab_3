@@ -14,55 +14,55 @@ library(car)
 ```
 
 ## 1. Introduction
-As advisees to candidates running for statewide office in North Carolina, we believe that the crime rate across the state should be of central concern to any candidate.  Local governments across the state desire to control the crime rate, and rigorous data analysis is needed to understand the role of crime in different parts of the state. This report examines the available crime data and attempts to answer the following research question: what variables are associated with crime rates across counties in North Carolina?  Based on this analysis, we generate several policy suggestions applicable to local government in North Carolina for the late 1980s.
+As advisees to political campaigns for statewide office in North Carolina, we believe that the crime rate across the state should be of central concern to any candidate.  Local governments desire to control the crime rate, and rigorous data analysis is needed to understand the role of crime in different parts of the state. This report examines the available crime data and attempts to answer the following research question: What variables are associated with crime rates across counties in North Carolina?  Based on this analysis, we generate several policy suggestions applicable to government officials in North Carolina for the late 1980s.
 
 ## 2. Data Definitions and Data Cleaning
-The data in this report was collected by researchers Cornewell and Trumball. They collected data related to crime, demographics, and the economy for 97 counties in North Carolina. While the authors collected data over a number of years, we will focus on the data from the year 1987. 
+The data analyzed in this report were collected as part of a multi-year study on crime by Cornwell and Trumball, originally published in 1994. The data include factors related to crime, demographics, and the economy for 90 of the 100 counties in North Carolina. For reasons of access, this report will focus exculsively on the data from 1987. 
  
 The dataset includes the following variables, which we present with definitions and assumptions:
 
-county: integer code representing which county the row represents. We received the data with these identifier codes in place of county names, so we cannot identify the individual counties in the dataset.
+*county*: integer code representing which county the row represents. We received the data with these identifier codes in place of county names, so we cannot identify the individual counties in the dataset.
 
-year: 1987 for all data points. 
+*year*: 1987 for all data points. 
 
-crmrte: ratio of crimes permitted to population, taken from the FBI's Uniform Crime Reports.
+*crmrte*: ratio of crimes permitted to population, taken from the FBI's Uniform Crime Reports.
 
-prbarr: ratio of arrests to offenses, taken from the FBI's Uniform Crime Reports.
+*prbarr*: ratio of arrests to offenses, taken from the FBI's Uniform Crime Reports.
 
-prbconv: ratio of convictions to arrests. Arrest data is taken from the FBI's Uniform Crime Reports, while conviction data is taken from the North Carolina Department of Correction.
+*prbconv*: ratio of convictions to arrests. Arrest data is taken from the FBI's Uniform Crime Reports, while conviction data is taken from the North Carolina Department of Correction.
 
-prbpris: ratio of prison sentences to convictions, taken from the North Carolina Department of Correction.
+*prbpris*: ratio of prison sentences to convictions, taken from the North Carolina Department of Correction.
 
-avgsen: average prison sentence in days, which we believe is taken from the North Carolina Department of Correction.
+*avgsen*: average prison sentence in days, which we believe is taken from the North Carolina Department of Correction.
 
-polpc: police per capita, computed using the FBI's police agency employee counts.
+*polpc*: police per capita, computed using the FBI's police agency employee counts.
 
-density: people per square mile
+*density*: people per square mile
 
-taxpc: tax revenue per capita. 
+*taxpc*: tax revenue per capita. 
 
-west: indicator code specifying whether county is in Western North Carolina (1 if yes, 0 if no).
+*west*: indicator code specifying whether county is in Western North Carolina (1 if yes, 0 if no).
 
-central: indicator code specifying whether county is in Central North Carolina (1 if yes, 0 if no).
+*central*: indicator code specifying whether county is in Central North Carolina (1 if yes, 0 if no).
 
-urban: indicator code specifying whether county is urban, defined by whether the county is in a Standard Metropolitan Statistical Area as defined by the US Census. 
+*urban*: indicator code specifying whether county is urban, defined by whether the county is in a Standard Metropolitan Statistical Area as defined by the US Census. 
 
-pctmin80: percentage of population that belongs to minority racial group, as taken by the 1980 US Census.
+*pctmin80*: percentage of population that belongs to minority racial group, as taken by the 1980 US Census.
 
-mix: ratio of face-to-face offenses to other offenses.
+*mix*: ratio of face-to-face offenses to other offenses.
 
-pctymle: percent young male, defined as proportion of population that is male between the ages of 15 and 24, as taken by US Census data. 
+*pctymle*: percent young male, defined as proportion of population that is male between the ages of 15 and 24, as taken by US Census data. 
 
 The remaining variables represent weekly wages in particular industries, as provided by the North Carolina Employment Security Commission:
-- wcon: construction
-- wtuc: transit, utilities, and communication
-- wtrd: wholesale, retail trade
-- wfir: finance, insurance, real estate
-- wser: service industry
-- wmfg: manufacturing
-- wfed: federal employees
-- wsta: state employees
-- wloc: local government employees
+- *wcon*: construction
+- *wtuc*: transit, utilities, and communication
+- *wtrd*: wholesale, retail trade
+- *wfir*: finance, insurance, real estate
+- *wser*: service industry
+- *wmfg*: manufacturing
+- *wfed*: federal employees
+- *wsta*: state employees
+- *wloc*: local government employees
  
 We start by evaluating the available data, cleaning it by removing anomolous values, and perhaps transforming the data.  
 ```{r}
@@ -71,58 +71,75 @@ df = read.csv("crime_v2.csv")
 #summary(df)
 ```
 
-Clean up the apostrophe.
+In the original dataset, there are several variables, including *prbarr*, *prbpris*, and *pctymle* that represent probabilities and are given as decimal values between 0-1. To facilitate comparing the coefficients for these variables more easily with other numerical values, we converted them to percentages between 0-100.  We note that there is one county, Madison County (FIPS code 115), for which the *prbarr* value post-conversion is greater than 100%. This could reflect an error in data gathering or recording, but it may also reflect that it is common for indviduals in this county to be arrested with greater frequency than they commit specific offenses.
 
-It appears that probconv is in percent, while the other two probability estimates (prbarr and prbpris) are fractions. To be able to compare coefficients more easily, let's get all percentage values in percent (0-100).
+In the case of *prbconv*, several of the original values are greater than 1. Although this may seem anomalous, it reflects the fact that the "probablity of conviction" is more effectively described as a ratio of the number of convictions per arrest, rather than as a probability of being convicted following arrest. Given that one might not be arrested for all crimes that one is subsequently convicted of, it makes sense that these numbers have a greater range than a traditional probabilities.
 
-Remove the points where probabilities exceed 100 %.
+The variable *mix* also appears as values between 0-1 in the original dataset.  We converted the values for this variable to percentages to make their scale more consistent with the rest of the data.
+
+To facilitate discussion of the variable *polpc*, we converted it from number of police per capita in a county to number of police per 1000 residents of a county.  That is, it is simply clearer to say, "There are 4 police officers per 1000 residents" than "There is .004 of a police officer per resident".
+
+In the original dataset, the values for Wilkes Country (FIPS code 193) are given twice.  We removed one. In addition, there were six rows in that had no values for any variable. We removed all of these.
+
+Data were not provided for the following counties (FIPS county codes are provide in parentheses): Camden (29), Carteret (31), Clay (43), Gates (73), Graham (75), Hyde (95), Jones (103), Mitchell (121), Tyrrell (177), and Yancey (199).  We do not know why these cases were omitted from the original dataset, nor can we say the extent to which the omission of 1/10 counties across the state might affect the effectiveness of our recommendations. However, a review of 2012 population estimates for the omitted counties indicate that 9/10 are ranked between 86-100 of the 100 counties in overall population. The remaining omitted county is ranked 37th overall in population in the state.  The generally low population rates for the omitted counties may indicate that there was insufficient crime data to include them in the dataset.
 
 ```{r}
 # Clean the data
 
 ## NOTE FROM ALLA: This is just what I did to clean the data.  I am sure this can be done in a more efficient way.  Please just let me know what the final df is called so that I can update it in my models.
 df_calc <- df
-df_calc$prbconv <- as.numeric(as.numeric(df$prbconv))
+
+# Convert the prbarr, prbpris, and pctymle variables from decimals to percentages
 df_calc$prbarr <- df$prbarr * 100
 df_calc$prbpris <- df$prbpris * 100
 df_calc$pctymle <- df$pctymle * 100
+
+# Convert the mix variable from decimals to percentage
+df_calc$mix <- df$mix * 100
+
+# Convert the polpc variable from decimals to number of police per 1000 people
+df_calc$polpc <- df$polpc * 1000
+
+# Convert the prbconv variable from integer to numeric
+df_calc$prbconv <- as.numeric(levels(df$prbconv)[df$prbconv])
+
 #summary(df_calc)
-df_clean <-df_calc[with(df_calc, prbarr <= 100 & wser <= 2000),]
+
+#remove row 89, which is a duplicate of row 88 (Madison County, FIPS 193)
+df_clean <- df_calc[-c(89), ]
+
+#remove rows with no data (i.e., all NA values)
+df_clean <- df_clean[-c(91:97), ]
+
+#remove 
+#df_clean <-df_calc[with(df_calc, prbarr <= 100 & wser <= 2000),]
 ```
 
 ##3. Building Models
-Our central goal for this analysis is to determine what variables are most associated with crime in North Carolina. For this reason, we will  use the crmrte variable as the outcome variable in most of our models. Before we begin modeling, we need to examine our outcome variable.
+Our central goal for this analysis is to determine what variables are most associated with crime across the state of North Carolina. For this reason, we will  use the *crmrte* variable as the outcome variable for our models. To begin, we examine our outcome variable.
 
 ```{r}
 summary(df_clean$crmrte)
+length(df_clean$crmrte)
 ```
 
-The value of crmrte ranges from approximately .011 to .099, with a mean of approximately .034. Six observations have NA values in place of their crmrte. Since our analysis primarily seeks to discover variables associated with crmrte, we will remove these rows with NA's, as they will not serve our analysis. 
-
-```{r}
-df_clean <- df_clean[complete.cases(df_clean$crmrte), ]
-```
-
-We are left with 89 observations. A histogram of the observations shows us the shape of their distribution:
+The value of *crmrte* ranges from approximately .6% to 9.9%, with a mean of approximately 3.4%. There are 90 total cases and no missing cases. A histogram of the data, shown below, reveals that the crime rate data are positively skewed, with the majority of counties having a crime rate between 1-4%.  The extended right tail indicates that a few counties have substantially higher crime rates, with some between 8-10%.
 
 ```{r fig.height=3, fig.width=5}
 hist(df_clean$crmrte, 
-     main="Crime Rate for Individual Counties", 
-     xlab= "Crime Rate", 
+     main="County Crime Rates in 1987 North Carolina", 
+     xlab= "Crimes Committed per Person", 
      ylab= "Number of Counties")
 ```
-
-We see in this histogram that the data is right skewed; the majority of counties have crime rates below .04, while the long right tail demonstrates that a smaller number of counties have substantially higher crime rates. 
-
 
 
 ## 4. The Models
 
-We complete the model building process in 5 stages, resulting in 5 separate models.  
+We will engage the model building process in five stages, resulting in five separate models.  
 
-The first four models are linear regressions of crime rate against increasing numbers of predictors.  The first model includes only variables we believe to be the main predictors of crime rate, density, tax per capita, and percent young male.  The second model includes several other factors we believe may be explanatory.  The third model adds the variables we have available, which are not problematic.  Finally, we show the fourth model, which includes the balance of variables, even those of questionable merit.  
+The first four models are linear regressions of crime rate against an increasing numbers of predictive variables.  Model 1 includes only the variables we believe to be the main predictors of crime rate: population density (*density*), tax per capita (*taxpc*), and percentage of young males in the population (*pctymle*).  Model 2 includes the factors from Model 1 as well as several others that we believe contribute meaningfully to crime rate, including location in the state, the number of police per 1000 residents (*polpc*), the probability of being arrested (*prbarr*), and the probability of being convicted if arrested (*prbconv*).  Model 3 builds on Model 2 by adding information about the percentage of minorties (*pctmin80*), the probability of getting a prison sentence (*prbpris*), and the average length of sentence (*avgsen*).  In Model 4, we include all available variables, including those of questionable merit.  
 
-For each model, we use the classic linear model assumptions. Assumption 1, linearity in parameters, holds, as each fit model has slope coefficients that are linear multipliers of the associated predictor variables. Assumption 2, random sampling, says that are data points must be independent and identically distributed. We have data for 97 of North Carolina's 100 counties (89 after remove NA values). While this represents something closer to the population of counties than a sample, we should be okay on the random sampling assumption if we assume that there is no pattern to the counties that weren't included in the data or that had NA values. We will validate the other 4 assumptions for each subsequent model.
+For each of these models, we intend a classic linear model with the following assumptions: Assumption 1, linearity in parameters, holds, as each fit model has slope coefficients that are linear multipliers of the associated predictor variables. Assumption 2, random sampling, says that are data points must be independent and identically distributed. We have data for 97 of North Carolina's 100 counties (89 after remove NA values). While this represents something closer to the population of counties than a sample, we should be okay on the random sampling assumption if we assume that there is no pattern to the counties that weren't included in the data or that had NA values. We will validate the other 4 assumptions for each subsequent model.
 
 The fifth model, is a regression of the crime rate multiplied by the mix.  NEED MADELEINE'S INPUT HERE.  
 
