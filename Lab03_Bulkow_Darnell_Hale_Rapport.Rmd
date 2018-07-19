@@ -135,6 +135,31 @@ hist(df_clean$crmrte,
 ```
 
 
+Given the relative perceived severity of face-to-face crimes over non-face-to-face crimes, it is useful to consider only the face-to-face crime rate. This can be found using the overall crime rate and the mix variable, which we recall contains the fraction of face-to-face crimes to other crimes. After making the fairly safe assumption that face-to-face $+$ other $=$ total crime, a somewhat tortuous manipulation gives us what we need: the ratio of face-to-face crimes among all crimes committed in a county.
+
+\begin{align}
+\frac{\text{face-to-face}}{\text{total}} &= 1 - \frac{\text{other}}{\text{total}} \\
+&= 1 - \frac{\text{other}}{\text{face-to-face}+\text{other}} \\
+&= 1 - \frac{1}{\frac{\text{face-to-face}+\text{other}}{\text{other}}}\\
+&= 1 - \frac{1}{\frac{\text{face-to-face}}{\text{other}}+1}\\
+&= 1 - \frac{1}{\text{mix}+1}
+\end{align}
+
+Now when multiplied with the overall crime rate, this gives the face-to-face crime rate in each county.
+
+```{r fig.height=3, fig.width=5}
+# Calculate the face-to-face crime rate
+ftfcrmrte <- df_clean$crmrte * (1-1/(df_clean$mix+1))
+# Examine the distribution
+summary(ftfcrmrte)
+hist(ftfcrmrte, 
+     main="County Crime Rates in 1987 North Carolina", 
+     xlab= "Crimes Committed per Person", 
+     ylab= "Number of Counties")
+```
+
+The distribution of the face-to-face crime rate is similar, but not identical to, the base crime rate. The mean is lower, as we would expect, but only slightly lower, and values now range from .5% to 9.3%. The effect of this manipulation appears to be fairly small, so we will remain with the simpler crime rate for the majority of our models. At the end, to examine whether the causes of face-to-face crime might be different from the causes of crime overall, we will briefly examine this in a seperate model. 
+
 ## 4. The Models
 
 We will engage the model building process in five stages, resulting in five separate models.  
@@ -307,6 +332,10 @@ plot(model_4, which = 5)
 ```
 
 ### 4.5 Model 5
+
+
+
+
 ```{r}
 # Build Model 5
 # model 5: the model 1 version of a model for this dependent variable - crmrate*mix
