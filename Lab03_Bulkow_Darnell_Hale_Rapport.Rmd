@@ -256,7 +256,7 @@ plot(model_1, which = 5)
 
 We find one point that has a Cook's Distance greater than 1, corresponding to Dare county. As noted previously, Dare country has substantially higher tax per capita than other North Carolina counties because of tax revenue from tourism. As such, the deviation of this single case is understandable and does not warrant its removal.
 
-TODO: zero conditional mean?
+Assumption 4, the assumption that the mean error conditional on the dependent variables is zero, is probably not met in a strict causal sense, or in the sense of a "true relationship" for the underlying quantities, due to the likely presence of omitted variables that will be discussed later on. Instead, for the purposes of an associative model that uses only the data avialable, we can get the weaker but sufficient assumption of exogeneity of the error for free. Assumption 4 and Assumption 6 will henceforth be discussed in this more limited associative manner.
 
 To validate the model in terms of Assumption 5 regarding homoskedasticity, we create a plot of the residuals vs. fitted values. We find that the range of errors is relatively constant throughout the range of fitted values, which supports the assumption in question.  However, we note that we have fewer data points at the higher values of crime rate than the lower values of crime rate, so validity in this case may be somewhat weaker than with other assumptions.
 ```{r fig.height=3, fig.width=5}
@@ -308,7 +308,7 @@ plot(model_2, which = 5)
 
 Unsurprisingly, the $R^2$ increased from 0.64 to 0.82 with these additional 5 variables included. We also note that point 25 still has high leverage, just as in model 1.  Perhaps we should study that county a bit more closely.
 
-We also check Assumption 4, exogeneity, by summing the product of the residuals and fitted values and finding the sum of 0.
+Assumption 4, exogeneity, is given for free as a byproduct of our method. This is verified below, by checking that the sum of the residuals multiplied by the fitted values is zero.
 
 ```{r}
 round(sum(model_2$residuals * model_2$fitted.values), 15)
