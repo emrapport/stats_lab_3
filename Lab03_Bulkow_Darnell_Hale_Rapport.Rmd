@@ -271,11 +271,7 @@ plot(model_1, which = 5)
 
 We find one point that has a Cook's Distance greater than 1, corresponding to Dare county. As noted previously, Dare country has substantially higher tax per capita than other North Carolina counties because of tax revenue from tourism. As such, the deviation of this single case is understandable and does not warrant its removal.
 
-Now that the model is built, we can evaluate the validity of Assumption 4 regarding zero conditional mean. This involves demonstrating that the expectation (i.e., mean) of the fitted values multiplied the residuals equals 0. Given that the denominator does not matter for this particular calculation, we can use the sum of fitted values rather than the mean.
-```{r}
-round(sum(model_1$residuals * model_1$fitted.values), 15)
-```
-We find that the residuals times the fitted values sum to 0, indicating that the model meets the demands of Assumption 4.
+TODO: zero conditional mean?
 
 To validate the model in terms of Assumption 5 regarding homoskedasticity, we create a plot of the residuals vs. fitted values. We find that the range of errors is relatively constant throughout the range of fitted values, which supports the assumption in question.  However, we note that we have fewer data points at the higher values of crime rate than the lower values of crime rate, so validity in this case may be somewhat weaker than with other assumptions.
 ```{r fig.height=4, fig.width=5}
@@ -429,6 +425,16 @@ stargazer(model_1, model_2, model_3, model_4, model_5, type = "latex",
           keep.stat = c("rsq", "n"),
           omit.table.layout = "n") # Omit more output related to errors
 ```
+
+# Future Statistical Tests
+
+The data we have been provided are not ideal for statistical inference, because they do not comprise a simple random sample of any sufficiently large broader population. There are some issues with calling this a random sample of counties in North Carolina in 1987, both because we do not know if the criteria of their selection were truly random, nor their measurements independent (geographically close counties, for instance, could see mutually dependent crime rates, etc.) Moreover, the most commonly used statistical methods are designed for samples that comprise less than 10% of the population, whereas our data comprise 90% of the population they were drawn from. Our estimates would at best be extremely conservative, and at worst glaringly inaccurate.
+
+Furthermore, since we have nearly sampled the entire population of North Carolinian counties in 1987, the usual business of statistical inference (trying to learn about a population based on a sample) is not really necessary in order to make meaningful claims about relationships between crime rate and other variables in North Carolina in 1987. Even supposing the relationships we discovered only hold for the 90 counties for which we have data (out of the 100 total in North Carolina), constituents will likely be persuaded that methods to reduce crime in these counties alone would be a sufficient goal in and of itself.  
+
+If we insist on proceeding with statistical inference on our current data, the best we can do is imagine them as a random sample of counties drawn from some theoretical infinite population of possible sets of measurements of each variable -  although even then, we run the risk of clustering geographically similar counties. We could then infer confidence intervals for the regression between variables in this hypothetical population. There is a temptation to make inferences across multiple states or years, but in this case we must consider that the counties we have available are far from randomly selected.
+
+Finally, since we have already used all of our data for exploratory data analysis, it would not be appropriate to conduct actual hypothesis testing. Were we given new data (from another year, or another state, or data randomly drawn from multiple years or states) we could test out various hypotheses: for instance, that change in density has a nonzero effect on crime rate. Even better would be the possibility to implement policy changes in some counties but not others, creating a experiment of sorts, however we advise that the general public might not take kindly to this approach.
 
 ## 5. Omitted Variables
 
