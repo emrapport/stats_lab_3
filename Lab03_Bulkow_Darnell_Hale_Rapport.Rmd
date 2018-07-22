@@ -15,10 +15,10 @@ library(car)
 
 ## 1. Introduction
 
-As advisees to political campaigns for state and local office in North Carolina (NC), we believe that the crime rates across the state should be of central concern to any candidate.  State and local governments desire to control the crime rate, and rigorous data analysis is needed to understand the role of crime in different parts of the state. This report examines the available crime data and attempts to answer the following research question: What variables are associated with crime rates across counties in North Carolina?  Based on this analysis, we generate several policy suggestions applicable to candidates and government officials in North Carolina for the late 1980s.
+As advisees to political campaigns for state and local office in North Carolina (NC), we believe that the crime rates across the state should be of central concern to any candidate.  State and local governments desire to control the crime rate, and rigorous data analysis is needed to understand the factors that contribute to crime in different parts of the state. This report examines the available crime data and attempts to answer the following research question: *What variables are associated with crime rates across counties in North Carolina?*  Based on this analysis, we generate several policy suggestions applicable to candidates seeking or defending office in North Carolina.
 
 ## 2. Variable Definitions and Assumptions
-The data analyzed in this report were collected as part of a multi-year study on crime by Cornwell and Trumball, originally published in 1994. The data include various factors potentially related to crime for 90 of the 100 counties in North Carolina. Because of legal limitations on access to the full dataset, this report will focus exculsively on the opensource data from 1987. 
+The data analyzed in this report were collected as part of a multi-year study on crime by Cornwell and Trumball, originally published in 1994. The data include various factors potentially related to crime for 90 of the 100 counties in North Carolina. Because of legal limitations on access to the full dataset, this report will focus exculsively on the opensource data from 1987. As such, our findings and recommendations apply only to the North Carolina of the late 1980s.
  
 The dataset includes the following variables, which we present with definitions and assumptions:
 
@@ -83,13 +83,13 @@ df = read.csv("crime_v2.csv")
 
 The dataset has several ratio variables, including **prbarr**, **prbpris**, **pctymle**, and **mix**, that recorded as decimal values between 0-1. To facilitate comparing the coefficients for these variables more easily with other numerical values in the dataset, we converted their scale to 0-100, as in percentages.  The exception to this approach was *prbconv*, which reflects the ratio of convictions to arrests.  This variable has several values that are greater than 1, indicating that there are counties where individuals are convicted of more crimes than they were intially arrested for. Modifying the scale of this variable did not seem to improve its interpretablity, so it was unchanged. 
 
-The variable *polpc* represents the number of police officers per known resident in a county, which is somewhat intangible on an individual scale.  That is, it is awkward to refer to ".004 police officers per resident." To address this, we multiplied the scores for this variable by 1000, permitting descriptions such as "4 police officers per 1000 residents."
+The variable *polpc* represents the number of police officers per known resident in a county, which is somewhat intangible on an individual scale.  That is, it is awkward to refer to ".004 police officers per person." To address this, we multiplied the scores for this variable by 1000, permitting descriptions such as "4 police officers per 1000 people."
 
 There is one county, Madison County (FIPS 115), for which the *prbarr* value is greater than 100%. This anomaly could reflect an error in data gathering or recording, but it may also reflect that it is common for individuals in this county to be arrested with greater frequency than they commit specific offenses. We did not remove, replace, or adjust this score.
 
-The data for Wilkes Country (FIPS 193) are given twice.  We removed one set of these values so that they would not affect the overall analysis. In addition, there were six rows in the dataset that had no values for any variable. We assumed these rows were unintentionally included and removed all of them.
+The data for Wilkes Country (FIPS 193) are given twice.  We removed one set of these values so that they would not unduly affect the overall analysis. In addition, there were six rows in the dataset that had no values for any variable. We assumed these rows were unintentionally included and removed all of them.
 
-Data were not provided for the following counties (FIPS county codes are provide in parentheses): Camden (29), Carteret (31), Clay (43), Gates (73), Graham (75), Hyde (95), Jones (103), Mitchell (121), Tyrrell (177), and Yancey (199).  We do not know why these cases were omitted from the original dataset, nor can we say the extent to which the omission of 1/10 counties across the state might affect the effectiveness of our recommendations. However, a review of 2012 population estimates for the omitted counties (see http://us-places.com/North-Carolina/population-by-County.htm) indicate that 9/10 are ranked between 86-100 of the 100 counties in overall population. The remaining omitted county is ranked 37th overall in population in the state and is close to several major metropolitan areas in the Northeast.
+Data were not provided for the following counties (FIPS county codes are provide in parentheses): Camden (29), Carteret (31), Clay (43), Gates (73), Graham (75), Hyde (95), Jones (103), Mitchell (121), Tyrrell (177), and Yancey (199).  We do not know why these cases were omitted from the original dataset, nor can we say for certain the extent to which the omission of 1/10 counties across the state might affect the effectiveness of our recommendations. However, a review of 2012 population estimates for the omitted counties (see http://us-places.com/North-Carolina/population-by-County.htm) indicate that 9/10 are ranked between 86-100 of the 100 counties in overall population. The remaining omitted county is ranked 37th overall in population in the state and is close to several major metropolitan areas in the Northeast.  This pattern of omission draws our attention to the variable of *density*, which we will consider with particular care.
 
 ```{r}
 # Clean the data
@@ -120,16 +120,16 @@ df_clean <- df_clean[-c(91:97), ]
 
 ##3. Understanding Crime Rate
 
-Our central goal for this analysis is to determine what variables are most associated with crime across the state of North Carolina. For this reason, we will use crime rate as our primary outcome variable.
+Our central goal for this analysis is to determine what variables are most clearly predictive of crime across the different counties of North Carolina. For this reason, we will use **crmrte** as our primary outcome variable.
 
-To begin, we examine the distribution of **crmrte** to determine its center and variability. This reveals that value of **crmrte** ranges from approximately 0.6% to 9.9%, with a mean of approximately 3.4%. There are 90 total cases, with no missing values among them.
+To begin, we examine the distribution of **crmrte** to determine its center and variability, based on data from 90 counties; there were no missing cases. This reveals that value of **crmrte** ranges from approximately 0.006 to .099, with a mean of approximately .034. In practical terms, this means that the crime rate in North Carolina for 1987 varies from approximately 6-99 crimes per 1000 people, with an average of 3.4 crimes per 1000 people.
 
 ```{r}
 summary(df_clean$crmrte)
 length(df_clean$crmrte)
 ```
 
-A histogram of the data reveals that the crime rate data are positively skewed, with the majority of counties having a crime rate between 1-4%.  The extended right tail indicates that a few counties have substantially higher crime rates, with some between 8-10%.
+A histogram of the data reveals that the crime rate data are positively skewed, with the majority of counties having a crime rate between 1-4% (i.e., 1-4 crimes per 100 people).  The extended right tail indicates that a few counties have substantially higher crime rates, with some between 8-10% (i.e., 8-10 crimes per 100 people).
 
 ```{r fig.height=3, fig.width=5}
 hist(df_clean$crmrte, 
@@ -138,9 +138,11 @@ hist(df_clean$crmrte,
      ylab= "Number of Counties")
 ```
 
-Constituents are generally more responsive to policies regarding violent crime, than property crime. Focusing on reducing the perceived crime rate means, in great part, focusing on reducing the face-to-face crime rate, which in turn influences our policy recommendations. Due to the perceived severity of face-to-face crimes over non-face-to-face- crimes, we determined that a useful addendum to our research question would be: what are the factors associated with the face-to-face crime rate in North Carolina?
+Although constituents are concerned with the crime rate in general, our experience suggests that they are often more concerned about crimes that result in personal physical harm to people (i.e., "personal crime", with a focus on "violent crime") than those that simply result in loss or damage to property (i.e., "property crime").  For this reason, the effective political candidate must not simply focus on policies for reducing the general crime rate, but must consider how to perceptably reduce the personal crime rate, and especially the violent crime rate, for their constituents. 
 
-We can find the face-to-face crime rate using the overall crime rate and the mix variable, which we recall contains the fraction of face-to-face crimes to other crimes. After making the fairly safe assumption that face-to-face $+$ other $=$ total crime, a somewhat tortuous manipulation gives us what we need: the ratio of face-to-face crimes among all crimes committed in a county.
+In the current dataset, we may generally access the distinction between personal and property crime by examining the different rates of "face-to-face crime"", which reflects crime directly involving victims, and "other" crime, which includes crime not directly involving victims. This permits us to address a corollary to our primary research question, namely: *What are the variables associated with the *face-to-face* crime rates across counties in North Carolina?*
+
+Extracting the face-to-face crime rate involves manipulations on **crmrte** involving **mix**, which the reader will recall is the ratio of face-to-face crimes to other crimes. Specifically, we begin by assuming that the total crime rate equals the face-to-face crime rate $+$ the other crime rate. A somewhat tortuous manipulation, detailed below, allows us to calculate the ratio of face-to-face crimes among all crimes committed for each country in the dataset.
 
 \begin{align}
 \frac{\text{face-to-face}}{\text{total}} &= 1 - \frac{\text{other}}{\text{total}} \\
@@ -150,7 +152,7 @@ We can find the face-to-face crime rate using the overall crime rate and the mix
 &= 1 - \frac{1}{\text{mix}+1}
 \end{align}
 
-Now when multiplied with the overall crime rate, this gives the face-to-face crime rate in each county.
+We use the resulting fraction, multiplied with the value for **crmrte** for a given county, to generate the face-to-face crime rate (i.e., **f2fcrmrte**) for that county. 
 
 ```{r fig.height=3, fig.width=5}
 # Calculate the face-to-face crime rate
@@ -168,27 +170,32 @@ hist(df_clean$crmrte_ratio,
      ylab= "Number of Counties")
 ```
 
-The distribution of the face-to-face crime rate is similar, but not identical to, the base crime rate. The mean is lower, as we would expect, but only slightly lower, and values now range from 0.5% to 9.3%. The effect of this manipulation appears to be fairly small, so we will focus on the unadjusted crime rate for the majority of our analysis. 
+We note that the distribution of the face-to-face crime rate is similar, but not identical to, the general crime rate. In particular, **f2rcrmrte** has a slightly lower mean of 3% (i.e., an average of 3 personal crimes per 100 people), and a range of 0.5% to 9.3% (i.e., 5-93 crimes per 1000 people). The similarity of the two variables suggests that it is appropriate for our analysis to focus primarily on the more general **crmrte**, then extended secondarily to **f2fcrmrte** in the context of policy recommendations.  
 
 ## 4. Models and Assumptions
 
-We model the factors contributing to crime rate in North Carolina in five stages, resulting in five related, but distinct, models. 
+For analyses of this type, we use ordinarly least squares (OLS) regression, also known as multiple linear regression, to determine what associations, if any, exist among the variables in the dataset.  We identify a variable to be explained -- the "outcome" variable -- and then perform analyses involving different combinations of "explanatory" (or "predictor") variables from the dataset to see the degree to which those variables and combinations can predict the observed outcomes. Each set of calculations, involving the outcome variable and a specific combination of explanatory variables, is referred to as a "model". Models typically build on each other, starting with a few explanatory variables that are determined to be particularly important, and are subsequently extended by adding more explanatory variables in order to increase the predictive value relative to the outcome variable. 
 
-The first four of our models are linear regressions of crime rate against an increasing number of predictive variables.  
+In addition to the outcome and explanatory variables, each model contains some degree of statistical error, typically represented as *u*. This error represents an unknown value of the difference between the true value of the variables in the world and the values for those variables given in the dataset. For example, there is some difference between the actual crime rate across counties in North Carolina and the measures we have for that crime rate in the current dataset, because the dataset does not reflect every single crime that was committed in every single county across the entire state during the time period of interest. To the extent that the variables in the dataset were well designed and implemented, and the values for those variables accurately and thoroughly gathered, the statistical error will be smaller. All statistical models involve some degree of statistical error.
+
+Other statistical terms that may be useful for the reader to be familiar with include:
+\begin{itemize}
+  \item "coefficient": A value multiplied by a variable (e.g., in 5x, 5 is a coeffient)
+  \item "fitted value": A predicted value for a variable that is generated when trying to find the best fit for the value into a particular regression equation. 
+  \item "residual": The difference between the observed value of a variable and the predicted value for that same variable; typically represented as *e*. Each data point has one residual.
+\end{itemize} 
+
+For the current analysis, we model the factors contributing to crime rate across the counties of North Carolina in five stages, resulting in five models. Each of these models is described below.
 
 \begin{itemize}
-  \item \underline{Model 1} includes only the variables we believe to be the main predictors of crime rate: population density (**density**), tax per capita (**taxpc**), and percentage of young males in the population (**pctymle**).  
+  \item \underline{Model 1} includes only the variables we believe to be the main predictors of crime rate (**crmrte**): population density (**density**), tax per capita (**taxpc**), and percentage of young males in the population (**pctymle**).  
   \item \underline{Model 2} includes the factors from Model 1 as well as several others that we believe contribute meaningfully to crime rate, including location in the state (**west**), the number of police per 1000 residents (**polpc**), the ratio of arrests to offenses (**prbarr**), the ratio of convictions to arrests (**prbconv**), and the proportion of non-White minorities (**pctmin80**).  
   \item \underline{Model 3} builds on Model 2 by adding more information about the location of the county (**central**), the ratio of prison sentences to convictions (**prbpris**), and the average length of prison sentence (**avgsen**).  
-  \item \underline{Model 4} builds on Model 3 and adds all other variables in the dataset that are not covariant with any predictor variables that are already included. 
-  \item\underline{Model 5} explores whether predictors we identify for general crime rate are comparably effective for predicting face-to-face crime by creating a modified outcome variable using **crmrate** and **mix**.
+  \item \underline{Model 4} builds on Model 3 and adds all other explanatory variables in the dataset that are not covariant with any explanatory variables already included. 
+  \item\underline{Model 5} explores whether predictors we identify for general crime rate are comparably effective for explaining the rate of face-to-face crime across counties in North Carolina by using the secondary outcome variable **f2fcrmrte**, based on **crmrate** and **mix**.
 \end{itemize}  
 
-Each of our models will be assessed to determine it's consistency with the following assumptions, which are standard for classic linear regression models like these.
-
-```{r}
-##Note from Kim: I think we really need to move the general descriptions of all of our CLM assumptions here, then indicate clearly as we go through the each model when we are doing things to demonstrate that an assumption has or has not been met.  We want the client to anticipate that we are going to be thorough, systematic, and transparent.  We may want to cite Wooldrige (2016) and introduce the client to some of the basic symbols and terms we will use.  This will make it easier for us to describe things in a more formal, professional way. We can't assume, for example, that the client will know what *u* or "statistical error" is.
-```
+Each of our models will be assessed to determine it's consistency with the following assumptions, which are standard for classic linear regression models like these. The statistical quality of our findings is dependent on these assumptions being met.
 
 \begin{itemize}
   \item \underline{Assumption 1}: Linearity in parameters, such that each fit model has slope coefficients that are linear multipliers of the associated predictor variables. 
@@ -199,19 +206,21 @@ Each of our models will be assessed to determine it's consistency with the follo
   \item \underline{Assumption 6}: Normality, such that the statistical error in the population is independent of the predictor variables and is normally distributed with zero mean and variance sigma-squared.
 \end{itemize}  
 
-For each of our models, we expect a classical linear model meeting Assumption 1. Relevant to Assumption 2 regarding random sampling, we remind the reader that our dataset reflects 90 of North Carolina's 100 counties, which is very close to the overall population. However, 9/10 of the omitted counties are those for which current population estimates are in the low 15% for the state. It is relevant to note that in Northeast cities in the early 1980s, violent (i.e., face-to-face), but not property (i.e., non-face-to-face), crime rates were correlated with population density (see https://www.ncjrs.gov/App/Publications/abstract.aspx?ID=99314/).
+For each of our models, we expect a classical linear model meeting Assumption 1; this is supported by the nature of our variables and the type of analysis we employ. 
 
-During statistical analysis, it is sometimes necessary to mathematically transform data using advanced statistical techniques to facilitate statistical modeling.  In the name of transparency, our preference is to transform data only if significant predictive gains are made. Some example cases when this would be true would be to linearize a relationship, to address heteroskedasticity, or because first principles recommends it, among others.  Beyond these special cases, the data will be used in its original form.
+We also expect all of our models to meet Assumption 2, regarding random sampling, given that our dataset reflects 90 of North Carolina's 100 counties, which is very close to the overall population. As a caveat, we note that 9/10 of the omitted counties are those for which 2012 population estimates are in the low 15% for the state. Although it is possible that these counties could have been omitted via an appropriately executed random sampling procedure, the pattern inherent in these omissions may require additional explanation or analysis, particularly if population density emerges as a useful predictor. It is relevant to note that in Northeast cities in the early 1980s, the rate of violent crime, but not property crime, was correlated with population density (see https://www.ncjrs.gov/App/Publications/abstract.aspx?ID=99314).
+
+Assumptions 3-6, which are dependent on the explanatory variables involved, will be tested independently for each model. Related to this, we note that, in some cases, it may be necessary to mathematically transform some portion of the data (e.g., convert the values for an explanatory variable to their logarithmic form) in order to facilitate an assumption being met. For example, transformations are commonly used to linearize the relationship between variables, improve homoskedasticity, or make the data more consistent with expected practice in a given scientific discipline. Beyond cases that have specific statistical or theoretical motivations, we will use the data in its original form. 
 
 ### 4.1 Model 1
 
 An exploratory examination of the data suggest that population density, local and state tax per capita, and the percentage of young males in the county are strong predictors of the general crime rate.  We begin by evaluating and describing each of these predictor variables in turn.
 
-Density (**Density**):
+Population density (**density**):
 ```{r fig.height=3, fig.width=5}
 summary(df_clean$density)
 hist(df_clean$density,
-     main="Population Densities across NC Counties", 
+     main="Population Density across NC Counties", 
      xlab= "Population Density (1/100)", 
      ylab= "Number of Counties",
      breaks = 15)
@@ -231,7 +240,7 @@ hist(df_clean$taxpc,
 
 The cumulative value of taxes assessed at the local and state levels per capita ranges from \$2,569 to \$11,976 per year.  Once again, we see a distribution that is right skewed, with revenue in most counties below the mean of \$3,813 per year. The maximum value, the value for Dare county (FIPS 55) is nearly 50% higher than the next closest value, suggesting that this county has an anomalously high tax rate for the state.  In fact, a review of the official website for Dare county (https://www.darenc.com/) reveals that it has an extremely active toursim industry and features a number of popular attractions, including the Outer Banks beach resort area, the Wright Brothers National Monument, the North Carolina Aquarium, and a number of other historic and recreational sites. The high rate of tax per capita for this country can easily be explained by taxes on activities related to toursim, such as those appended to hotel, rental car, and park entrance fee costs.  
 
-Percent Young Male (**pctymle**):
+Percentage of Young Males (**pctymle**):
 ```{r fig.height=3, fig.width=5}
 summary(df_clean$pctymle)
 hist(df_clean$pctymle,
@@ -241,15 +250,15 @@ hist(df_clean$pctymle,
      breaks = 30)
 ```
 
-The percent of males between 15-24 years of age ranges from 6.2 to 24.9% across counties.  Once again, we see a distribution that is right skewed, with the majority of counties having fewer than the mean of 8.4%. As with other primary variables, we see one extreme value: that for Onslow county (FIPS 133). This reflects that Onslow county includes the city of Jacksonville, recognized as the youngest county in the U.S. (see https://en.wikipedia.org/wiki/Jacksonville,_North_Carolina) in large part because it contains both the United States Marine Corps' Camp Lejeune and the New River Air Station, both of which are inhabited predominately by males under 25 years of age.
+Across the counties of North Carolina, the percentage of males between 15-24 years of age ranges from 6.2 to 24.9.  Once again, we see a distribution that is right skewed, with the majority of counties having fewer than the mean of 8.4% young males. There is one extreme value: that for Onslow county (FIPS 133). This reflects that Onslow county includes the city of Jacksonville, which contains the United States Marine Corps' Camp Lejeune and the New River Air Station, both of which are inhabited predominately by males under 25 years of age.
 
-Before we build our model, we review the matrix of scatterplots of crime rate and the three variables evaluated above to identify any potential collinearity.
+Before we build our model, we review the matrix of scatterplots of crime rate and the three predictor variables to assess the variables' consistency with Assumption 3 regarding no perfect collinearity.
 ```{r}
 vars <- c("crmrte", "density", "taxpc","pctymle")
 suppressWarnings(scatterplotMatrix(df_clean[,vars], diagonal = list(method= "histogram")))
 ```
 
-As previously indicated, crime rate appears predicted by each of the three primary variables selected as evidenced by the fairly strong positive slopes in the bivariate regressions in the scatterplot matrix.  Additionally, though **density** and **taxpc** appear to have a positive correlation, none of the variables are collinear with any of the others, so we can make Assumption 3, no perfect collinearity.
+As previously indicated, crime rate appears predicted by each of the three primary variables selected as evidenced by the fairly strong positive slopes in the bivariate regressions in the scatterplot matrix.  Additionally, though **density** and **taxpc** appear to have a positive correlation, none of the variables are collinear with any of the others. As such, Assumption 3 is validated. 
 
 With the evaluation of the variables complete, we build Model 1, and evaluate the Cook's Distance for the residuals:
 
@@ -262,18 +271,18 @@ plot(model_1, which = 5)
 
 We find one point that has a Cook's Distance greater than 1, corresponding to Dare county. As noted previously, Dare country has substantially higher tax per capita than other North Carolina counties because of tax revenue from tourism. As such, the deviation of this single case is understandable and does not warrant its removal.
 
-Now that the model is built, we can validate Assumption 4 regarding zero conditional mean.  To do this, we check that the expectation of the fitted values times the residuals is 0 (the denominator does not matter for this calculation, so we just take the sum of fitted values times residuals).
+Now that the model is built, we can evaluate the validity of Assumption 4 regarding zero conditional mean. This involves demonstrating that the expectation (i.e., mean) of the fitted values multiplied the residuals equals 0. Given that the denominator does not matter for this particular calculation, we can use the sum of fitted values rather than the mean.
 ```{r}
 round(sum(model_1$residuals * model_1$fitted.values), 15)
 ```
-We find that the residuals times the fitted values sum to 0, indicating the model has the desired property of exogeneity.
+We find that the residuals times the fitted values sum to 0, indicating that the model meets the demands of Assumption 4.
 
-To validate the model in terms of Assumption 5 regarding homoskedasticity, we create a plot of the residuals vs. fitted values and note that the error range was relatively constant throughout the range of fitted values.  Although the data appear to demonstrate the desired characteristic, we note that we have fewer data points at the higher values of crime rate than the lower values of crime rate, so validity in this case may be somewhat weaker than with other assumptions.
+To validate the model in terms of Assumption 5 regarding homoskedasticity, we create a plot of the residuals vs. fitted values. We find that the range of errors is relatively constant throughout the range of fitted values, which supports the assumption in question.  However, we note that we have fewer data points at the higher values of crime rate than the lower values of crime rate, so validity in this case may be somewhat weaker than with other assumptions.
 ```{r fig.height=4, fig.width=5}
 plot(model_1, which = 1)
 ```
 
-To validate Assumption 6, the normality of the residuals, we looked at a Q-Q plot of the standardized residuals, and noted the fairly straight line for the exceptions of the tails. Normally distributed residuals indicate that the signal in our data, which the model does not predict is likely just random noise. In this case, there are likely additional factors influencing crime rate that we are not taking into account in this model, which are biasing our coefficients, as discussed in the omitted variables section.
+To validate Assumption 6, the normality of the residuals, we looked at a Q-Q plot of the standardized residuals, and noted the fairly straight line for the exceptions of the tails. Normally distributed residuals indicate that any variation that the model does not predict is likely due to random noise. In this case, there are likely additional factors influencing crime rate that we are not taking into account in this model, which are biasing our coefficients. We will discuss these factors in the section on Omitted Variables.
 
 ```{r fig.size=4, fig.width=5}
 plot(model_1, which= 2)
@@ -281,7 +290,7 @@ plot(model_1, which= 2)
 
 ## Interpreting Model 1
 
-In Model 1, shown in Table 4.6.1, the coefficients are all positive, indicating that as population density, tax per capita, or the percentage of young males increase, an associated increase occurs in crime rate.
+In Model 1, shown in Table 4.6.1, the coefficients are all positive. This indicates that as population density, tax per capita, or the percentage of young males increase, an associated increase occurs in crime rate.
 
 However, it is not the case that all of our predictor variables are equally influencial when it comes to crime rate. Specifically, increases in population density result in an increase of the crime rate that is an order of magnitude greater than that for increases in tax per capita and almost four times that generated by higher percentages of young males. As such, this model indicates that while all of these predictors are useful to understanding the crime rate, the candidate's energy may be best spent on addressing crime-related concerns connected to population density first, followed by those related to tax rate and the proportion of young males. In the comments to follow, we highlight omitted factors that could be influencing our findings through correlation with our predictor variables in **bold**.
 
@@ -295,9 +304,9 @@ With regard to the increase in crime seen with an increase in the percentage of 
 
 ### 4.2 Model 2
 
-Model 2 includes **west**, **polpc**, **prbarr**, **prbconv**, and **pctmin80** in addition to the three variables from Model 1.  During our EDA, we found that each of these had substantial correlations with the variable of interest, crime rate.
+Model 2 includes **west**, **polpc**, **prbarr**, **prbconv**, and **pctmin80** in addition to the three variables from Model 1.  During our initial examination of the data (i.e., our EDA), we found that each of these had substantial correlations with the variable of interest, crime rate.
 
-We conducted a full EDA on each of the explanatory variables, but for the sake of space, a simple matrix plot of the additional variables, other than **west**, is shown below.  24.4 % of all counties were labeled **west**.
+We summarize the relationships among the new explanatory variables, with the exception of **west** (coded effectively as "in the western part of the state" or "not in the western part of the state").  For the dataset as a whole, 24.4 % of all counties were coded as being **west**.
 
 ```{r warnings = FALSE}
 vars <- c("polpc", "prbarr", "prbconv","pctmin80")
@@ -305,7 +314,7 @@ suppressWarnings(scatterplotMatrix(df_clean[,vars],
                                    diagonal = list(method = "histogram")))
 ```
 
-The matrix plot shows little correlation between most of the additional variables in this model, validating Assumption 3, no perfect multicolinearity. 
+The matrix plot shows little to no collinearity among the considered variables, validating Assumption 3. 
 
 ```{r fig.size=4, fig.width=5}
 # Build Model 2
@@ -361,7 +370,7 @@ model_3 = lm(crmrte ~ density + taxpc + pctymle
 summary(model_3)$r.square
 plot(model_3, which= 5)
 ```
-We note that point 25 is still exhibiting a Cook's distance of greater than 1.
+We note that point 25, representing Dare county, is still exhibiting a Cook's distance of greater than 1.
 
 Assumption 3 was tested by evaluating and eliminating the chance of any perfect collinearity between these variables.
 
@@ -394,13 +403,13 @@ plot(model_4, which = 5)
 
 ### 4.5 Model 5
 
-We repeated the analysis with the face to face crime rate as the dependent variable.  However, results were not directionally different than the models shown above.  This is unsurprising when the scatterplot of ftfcrmrte vs. crmrte is evaluated:
+As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the the results for Model 5 and Model 1 will be very similar, as *crmrte* and *f2fcrmrte* are closely associated:
 
 ```{r fig.height=4, fig.width=5}
 plot(crmrte ~ ftfcrmrte, data = df_clean)
 ```
 
-Therefore, we only share Model 5, and do not use it for any policy recommendations.  
+Implementation of Model 5 shows that population density, tax per capita, and the percentage of young males in the population explain approximately 63% of the variation in the face-to-face crime rate; this is almost indentical to their predictive power relative to general crime rate. Thus, the answer to our corollary question, *What are the variables associated with the *face-to-face* crime rates across counties in North Carolina?*, appears to be "The same variables that are associated with the general crime rate, and the impact appears to be of the same scale."
 
 ```{r}
 # Build Model 5
@@ -409,10 +418,7 @@ plot(model_5, which = 5)
 summary(model_5)$r.squared
 ```
   
-This model is analogous to Model 1, with face to face crime rate as the dependent variable.  The coefficient magnitudes and signs are similar to Model 1, and thus the interpretation and policy suggestions will all mirror section 4.1, and will not be restated here.
-  
-## KIM PLEASE WRITE THE FOLLOWING SECTION...  
-However, since constituents are generally more sensitive to the violent crime rate, focus should be placed on reducing violent crime. Here, we are using face-to-face as a proxy definition for violent crimes.  Model 5, and the policy suggestions from Model 1 are the ones that should be implemented first.  blah blah blah...
+As noted previously, our experience indicates that constituents are interested in policies and programs intended to reduce crime, but are especially concerned with those directed at reducing personal crime. Model 5 demonstrates to the candidate that policies and programs intended to reduce the general crime rate, about which we have made a number of recommendations, are also likely to reduce the personal crime rate. What matters most in this case is constituents' perception: The candidate is likely to get more support for policies and programs that are framed in terms of reducing personal crime -- particularly violent crime. Moreover, the candidate can promote policies and programs in terms of reducing personal crime while knowing that implementation of these policies should also reduce the general crime rate. What matters is the constituents' perception that the candidate is paying particular attention to the aspect of crime rate that the constituents themselves are most concerned with. This analysis provides a foundation for the candidate to pursue this strategy without sacrificing veracity or efficiency.
 
 ### 4.6 Model Summary
 The models built above are summarized in **Table 4.6.1**.
