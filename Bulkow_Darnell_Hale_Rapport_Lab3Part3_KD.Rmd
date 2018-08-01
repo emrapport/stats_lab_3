@@ -37,88 +37,35 @@ The data set includes the following variables, which we present with definitions
   
   \textbf{year}: A value of 1987 for all rows. This reflects that the current data are a subset of a larger, multiyear data set.
   
-For the remaining values, we define them here and provide distribution summaries in Table 1, prior to applying any transformations. 
+For the remaining values, we define them here and provide distribution summaries in **Table 1**, prior to applying any transformations. 
 
   \textbf{crmrte}: The ratio of crimes committed per person, based on reports from the Federal Bureau of Investigation's (FBI) Uniform Crime Reporting (UCR) program (see https://ucr.fbi.gov/).
 
-```{r}
-summary(df$crmrte)
-``` 
-
   \textbf{prbarr}: The ratio of arrests to offenses, based on reports from the FBI:UCR program.
 
-```{r}
-summary(df$prbarr)
-```  
-
   \textbf{prbconv}: The ratio of convictions to arrests. Conviction data are taken from the prison and probation files of the North Carolina Department of Correction (NCDOC). Arrest data are based on reports from the FBI:UCR program.
-  
-```{r}
-summary(as.numeric(levels(df$prbconv)[df$prbconv]))
-```
 
   \textbf{prbpris}: The ratio of prison sentences to convictions, taken from NCDOC.
-
-```{r}
-summary(df$prbpris)
-```
+  
   \textbf{avgsen}: The average prison sentence in days; although the source is not specificed, we assume these values come from the NCDOC.
-
-```{r}
-summary(df$avgsen)
-```
 
   \textbf{polpc}: The number of police officers per capita, computed using the FBI's police agency employee counts.
 
-```{r}
-summary(df$polpc)
-```
-
   \textbf{density}: The number of people per square mile of land; we assume each unit reflects 100 people.
-
-```{r}
-summary(df$density)
-```
 
   \textbf{taxpc}: The tax revenue per capita; we assume that this refers to taxes assessed in units of $100 U.S. at the state level or lower (e.g., individual taxes, sales taxes, and property taxes). 
   
-```{r}
-summary(df$taxpc)
-```
-  
   \textbf{west}: An indicator code specifying whether county is in Western North Carolina (1 if yes, 0 if no).
 
-```{r}
-summary(df$west)
-```
-
   \textbf{central}: An indicator code specifying whether county is in Central North Carolina (1 if yes, 0 if no).
-  
-```{r}
-summary(df$central)
-```
 
   \textbf{urban}: An indicator code specifying whether county is urban, defined by whether the county is in a Standard Metropolitan Statistical Area according to the U.S. Census (see https://www.encyclopedia.com/finance/finance-and-accounting-magazines/standard-metropolitan-statistical-areas). 
-```{r}
-summary(df$urban)
-```  
+
   \textbf{pctmin80}: The percentage of population that identified as belonging to a race/ethnicity other than "White" according to the 1980 U.S. Census. We note that in 1980, respondents were not permitted to select more than one racial/ethnic identification (see http://www.pewsocialtrends.org/interactives/multiracial-timeline/ for the specific categories by census year).
-  
-```{r}
-summary(df$pctmin80)
-```
   
   \textbf{mix}: The ratio of face-to-face offenses (e.g., crimes targeting a person or people) to other offenses (e.g., crimes targeting property).
 
-```{r}
-summary(df$mix)
-```
-
   \textbf{pctymle}: The percentage of young males, defined as the proportion of the population that is male and between the ages of 15 and 24, according to the 1980 U.S. Census data. 
-
-```{r}
-summary(df$pctymle)
-```
 
 The remaining variables in the provided data represent weekly wages in particular industries, as provided by the North Carolina Employment Security Commission (NCESC).
 
@@ -171,7 +118,8 @@ df_clean <- df_clean[-c(91:97), ]
 ```
 
 ```{r, results='asis'}
-stargazer(df_clean[,3:25], title = "Variable Distribution Summaries")
+stargazer(df_clean[,3:25], title = "Variable Distribution Summaries",
+          table.placement = "!h")
 ```
 ## 3 Understanding Crime Rate
 
@@ -417,7 +365,7 @@ plot(model_1_log, which = 2,
      caption = "", main = "Model 1 (log)")
 ```
 
-Overall, our comparison of untransformed and transformed versions of Model 1 suggests that the untransformed version is superior with regard to meeting assumptions of the classic linear model and demonstrating predictive power. That is, although the log transformed version better addresses the demands of Assumption 6, it also appears to violate Assumptions 4 and 5. In conjuction with the reduction in adjusted $R^2$ from 63% (untransformed) to 48% (log transformed), we prefer the version of Model 1 without a log transform of **crmrte**; this version of the model is summarized in Table 2. 
+Overall, our comparison of untransformed and transformed versions of Model 1 suggests that the untransformed version is superior with regard to meeting assumptions of the classic linear model and demonstrating predictive power. That is, although the log transformed version better addresses the demands of Assumption 6, it also appears to violate Assumptions 4 and 5. In conjuction with the reduction in adjusted $R^2$ from 63% (untransformed) to 48% (log transformed), we prefer the version of Model 1 without a log transform of **crmrte**; this version of the model is summarized in **Table 2**. 
 
 #### 4.1.3 Statistical Inference for Model 1
 
@@ -594,20 +542,27 @@ coeftest(model_5, vcov=vcovHC)
 ```
 The t test on coefficients for Model 5 closely resembles that of Model 1, with **density** and **pctymle** showing statistical significance at the .05 level and **taxpc** not demonstrating statistical significance (though it is, perhaps, worth noting that **pctymle** has greater statistical significance in this model than it did in Model 1). Given that we see similar practical and statistical significance for the covariates in this model that we do in Model 1, the answer to our corollary question, *What are the variables associated with the* face-to-face *crime rates across counties in North Carolina?*, appears to be "The same variables that are associated with the general crime rate, and the impact appears to be of the same scale."
 
-As noted previously, our experience indicates that constituents are interested in policies and programs intended to reduce crime, but are especially concerned with those directed at reducing personal crime. Model 5 demonstrates to the candidate that policies and programs intended to reduce the general crime rate, about which we have made a number of recommendations, are also likely to reduce the personal crime rate. What matters most in this case is constituents' *perception*: The candidate is likely to get more support for policies and programs that are framed in terms of reducing personal crime -- particularly violent crime. Moreover, the candidate can promote policies and programs in terms of reducing personal crime while knowing that implementation of these policies should also reduce the general crime rate. What matters is the constituents' perception that the candidate is paying particular attention to the aspect of crime rate that the constituents themselves are most concerned with. This analysis provides a foundation for the candidate to pursue this strategy without sacrificing veracity or efficiency.
+As noted previously, our experience indicates that constituents are interested in policies and programs intended to reduce crime, but are especially concerned with those directed at reducing personal crime. Model 5 demonstrates to the candidate that policies and programs intended to reduce the general crime rate, about which we have made a number of recommendations, are also likely to reduce the personal crime rate. What matters most in this case is constituents' *perception*: The candidate is likely to get more support for policies and programs that are framed in terms of reducing personal crime -- particularly violent crime. Moreover, the candidate can promote policies and programs in terms of reducing personal crime while knowing that implementation of these policies should also reduce the general crime rate. This analysis provides a foundation for the candidate to pursue this strategy without sacrificing veracity or efficiency.
 
 ### 4.6 Model Summary
-The models built above are summarized in **Table 2**.
+The models built above are summarized in **Table 2**. Of note, Model 2 appears to be the best balance of predictive ability and parsimony of these five judging by the highest adjusted $R^2$ and the lowest AIC value.
+
 ```{r, results='asis'}
-#TODO: figure out how to get heteroskedasticity-robust standard errors correctly in stargazer
-# TODO: add in AIC here?
-#TODO: make this table not so big that it runs off page
+#TODO: figure out how to get heteroskedasticity-robust standard errors correctly in stargazer- I think they're okay.
+#TODO: Can anyone write a more efficient loop here for assigning these AICs?
+model_1$AIC <- AIC(model_1)
+model_2$AIC <- AIC(model_2)
+model_3$AIC <- AIC(model_3)
+model_4$AIC <- AIC(model_4)
+model_5$AIC <- AIC(model_5)
+
 stargazer(model_1, model_2, model_3, model_4, model_5, type = "latex", se = list(vcovHC(model_1), vcovHC(model_2), vcovHC(model_3), vcovHC(model_4), vcovHC(model_5)),
-          report = "vcs*", # Don't report errors, since we haven't covered them
           title = "Linear Models Predicting Crime Rate",
-          keep.stat = c("rsq", "n"),
-          omit.table.layout = "n") # Omit more output related to errors
+          keep.stat = c("aic", "rsq", "n", "adj.rsq"),
+          no.space = TRUE, table.placement = "!", star.cutoffs = c(0.05, 0.01, 0.001))
 ```
+
+
 
 ### 4.7 Future Statistical Tests
 
@@ -617,7 +572,7 @@ Furthermore, since we have nearly sampled the entire population of North Carolin
 
 If we insist on proceeding with statistical inference on our current data, the best we can do is imagine them as a random sample of counties drawn from some theoretical infinite population of possible sets of measurements of each variable -  although even then, we run the risk of clustering geographically similar counties. We could then infer confidence intervals for the regression between variables in this hypothetical population. There is a temptation to make inferences across multiple states or years, but in this case we must consider that the counties we have available are far from randomly selected.
 
-Finally, since we have already used all of our data for exploratory data analysis, it would not be appropriate to conduct actual hypothesis testing on the data we have. Were we given new data from another year or another state, or even data that were drawn randomly from multiple years or states, we could test hypotheses based on our current findings (e.g., that change in population density has a nonzero effect on crime rate). Even better would be the possibility to implement policy changes in some North Carolina counties but not others, creating a experiment of sorts. However, we advise that the general public might not take kindly to this approach.
+Finally, since we have already used all of our data for exploratory data analysis, it would not be appropriate to conduct actual hypothesis testing on the data we have. Were we given new data from another year or another state, or even data that were drawn randomly from multiple years or states, we could test hypotheses based on our current findings (e.g., that change in population density has a nonzero effect on crime rate). Even better would be the possibility to implement policy changes in some North Carolina counties but not others, creating an experiment of sorts. However, we advise that the general public might not take kindly to this approach.
 
 ## 5. Omitted Variables
 
