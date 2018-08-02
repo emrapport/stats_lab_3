@@ -543,9 +543,12 @@ As noted previously, our experience indicates that constituents are interested i
 The models built above are summarized in **Table 2**. Of note, Model 2 appears to be the best balance of predictive ability and parsimony of these five judging by the highest adjusted $R^2$ and the lowest AIC value.
 
 ```{r, results='asis'}
-for(model in c(model_1, model_2, model_3, model_4, model_5)){
-  model$AIC <- AIC(model)
-}
+
+model_1$AIC <- AIC(model_1)
+model_2$AIC <- AIC(model_2)
+model_3$AIC <- AIC(model_3)
+model_4$AIC <- AIC(model_4)
+model_5$AIC <- AIC(model_5)
 
 stargazer(model_1, model_2, model_3, model_4, model_5, type = "latex", se = list(sqrt(diag(vcovHC(model_1))), sqrt(diag(vcovHC(model_2))), sqrt(diag(vcovHC(model_3))), sqrt(diag(vcovHC(model_4))), vcovHC(model_5)),
           title = "Linear Models Predicting Crime Rate",
