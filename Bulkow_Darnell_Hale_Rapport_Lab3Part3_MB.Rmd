@@ -112,7 +112,7 @@ df_calc$mix <- df$mix * 100
 # Convert the polpc variable from decimals to number of police per 1000 people
 df_calc$polpc <- df$polpc * 1000
 # Convert the prbconv variable from integer to numeric
-df_calc$prbconv <- as.numeric(levels(df$prbconv)[df$prbconv])
+suppressWarnings(df_calc$prbconv <- as.numeric(levels(df$prbconv)[df$prbconv]))
 #remove row 89, which is a duplicate of row 88 (Madison County, FIPS 193)
 df_clean <- df_calc[-c(89), ]
 #remove rows with no data (i.e., all NA values)
@@ -186,15 +186,6 @@ We note that the distribution of the face-to-face crime rate is similar, but not
 
 For analyses of this type, we use ordinary least squares (OLS) regression, also known as multiple linear regression, to determine what associations, if any, exist among the variables in the data set.  We identify a variable to be explained -- the "outcome" variable -- and then perform analyses involving different combinations of "explanatory" (or "predictor") variables from the data set to see the degree to which those variables and combinations can predict the observed outcomes. Each set of calculations, involving the outcome variable and a specific combination of explanatory variables, is referred to as a "model". Models typically build on each other, starting with a few explanatory variables that are determined to be particularly important, and are subsequently extended by adding more explanatory variables in order to increase the predictive value relative to the outcome variable. 
 
-In addition to the outcome and explanatory variables, each model contains some degree of statistical error. This error represents a combination of two things: 1) the unknown value of the difference between the true value of the variables in the world and the values for those variables given in the data set, and 2) the unknown influence of variables that are *not* in the data set on the variables that *are* included. For example, there is guaranteed to be some difference between the actual crime rate across counties in North Carolina and the measures we have for that crime rate in the current data set, because the data set does not reflect every single crime that was committed in every single county across the entire state during the time period of interest. Similarly, the data set does not include every single variable that could possibly have influenced the occurrence of crime for the time and location of interest. To the extent that the variables in the data set were well selected, designed, and/or implemented, and the values for those variables accurately and thoroughly gathered, the statistical error will be smaller. All statistical models involve some degree of statistical error. The reported "standard error" offers our best estimate of potential error due to variation in the data, but cannot account for potential biases from omitted data or omitted variables.
-
-Other statistical terms that may be useful for the reader to be familiar with include:
-\begin{itemize}
-  \item "coefficient": A value multiplied by a variable (e.g., in 5x, 5 is a coefficient).
-  \item "fitted value": A predicted value for a variable that is generated when trying to find the best fit for the value into a particular regression equation. 
-  \item "residual": The difference between the observed value of a variable and the predicted value for that same variable. Each data point has one residual.
-\end{itemize} 
-
 For the current analysis, we model the variables contributing to crime rate across the counties of North Carolina in five stages, resulting in five models. An overview of each model is provided below.
 
 \begin{itemize}
@@ -246,8 +237,7 @@ cormat1 <- cor(m1vars)
 #cormat1
 corrplot(cormat1, type = "lower", method = "number",
          title = "Correlations of Model 1 Variables",
-         mar = c(0,0,1,0), cex.main = .95,
-         tl.col = "black", tl.srt = 45, cl.cex=.6)
+         mar = c(0,0,1,0), cex.main = .95, tl.col = "black", tl.srt = 45, cl.cex=.6)
 ```
 
 ```{r fig.height=2.5, fig.width=6}
@@ -268,31 +258,29 @@ abline(lm(crmrte~pctymle))
 Next, we examine the distributions of each of our key predictor variables.
 
 Population density (**density**):
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 summary(df_clean$density)
 hist(df_clean$density,
      main="Number of Counties vs. Population Density", 
-     xlab= "Population Density per Square Mile of Land (1/100) ", 
-     ylab= "Number of Counties",
+     xlab= "Population Density per Square Mile of Land (1/100) ", ylab= "Number of Counties",
      breaks = 15, cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
 The value of **density** ranges from a score of approximately 0.002 to 880 people per square mile of land, with a mean of 145. The distribution of county densities is right skewed, with most counties having a score of 200 or fewer people per square mile of land. We note that 9/10 counties omitted from the data set are among those with lower populations, so it is likely that our descriptive statistics are somewhat elevated.    
 
 Tax per Capita (**taxpc**):
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 summary(df_clean$taxpc)
 hist(df_clean$taxpc,
      main="Number of Counties vs. Tax per Capita", 
-     xlab= "Local and State Tax per Capita (1/100 $US)", 
-     ylab= "Number of Counties",
+     xlab= "Local and State Tax per Capita (1/100 $US)", ylab= "Number of Counties",
      breaks = 30, cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
 The cumulative value of taxes per capita assessed at the local and state levels ranges from \$2,569 to \$11,976 per year.  Once again, we see a distribution that is right skewed, with revenue in most counties below the mean of \$3,813 per year. The maximum value, the value for Dare county (FIPS 55) is nearly 50% higher than the next closest value, suggesting that this county has an anomalously high tax rate for the state.  In fact, a review of the official website for Dare county (https://www.darenc.com/) reveals that it has an extremely active tourism industry and features a number of the state's most popular attractions, including the Outer Banks beach resort area, the Wright Brothers National Monument, the North Carolina Aquarium, and a number of other historic and recreational sites. The high rate of tax per capita for this county can be explained by taxes on activities related to tourism, such as those appended to hotel, rental car, and park entrance fee costs. As such, Dare county generates substantial tax-related income from people who do not live in the county, but the value of these taxes is still incorporated into the tax per capita rate for those who *do* live in the county.  
 
 Percentage of Young Males (**pctymle**):
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 summary(df_clean$pctymle)
 hist(df_clean$pctymle,
      main= "Number of Counties vs. Percent Males Age 15-24", 
@@ -325,7 +313,6 @@ stargazer(model_1, model_1_log, type = "latex",
           single.row = TRUE, table.placement = "!", header = FALSE, 
           star.cutoffs = c(0.05, 0.01, 0.001))
 ```
-\.
 
 The version of the model with an untransformed  **crmrte** has an the adjusted $R^2$ value which indicates that 62.79% of the variance in crime rate can be explained by our combination of three variables. In contrast, in the version of the model with the log transformed **crmrte**, the adjusted $R^2$ has dropped to 46.31%, reflecting a substantial reduction in predicted variance in the outcome variable. As such, the untransformed version of the model has greater predictive power with regard to outcome variable of interest.
 
@@ -345,7 +332,7 @@ In both versions of Model 1, we find one point (i.e., the one corresponding to D
 
 Assumption 4, the assumption that the mean error conditional on the dependent variable equals zero, is not met in a strict causal sense for either version of Model 1. That is, we cannot observe "true relationships" among the underlying quantities, due to the likely presence of other factors that may influence the outcome variable. For this reason, we can only validate a weaker, but still sufficient, form of the assumption: exogenity of the error. This means that our interpretations of the relationships among the variables in our data will be strictly associative. From this point forward, Assumption 4 and Assumption 6 will be discussed in this more limited associative manner. 
 
-The residuals vs fitted values plots contrast the residuals for the two versions of Model 1 with their corresponding fitted values. We see that the untransformed version shows close to a zero-conditional mean for the errors, whereas the log transformed version has a marked curvature in the errors.  This outcome preferences the untransformed version of the model.
+The residuals vs fitted values plots for both versions of Model 1 show that the untransformed version exhibits close to a zero-conditional mean for the errors, whereas the log transformed version has a marked curvature in the errors.  This outcome preferences the untransformed version of the model.
 
 ```{r fig.height=3, fig.width=5}
 layout(matrix(c(1,2), 1, 2, byrow = TRUE))
@@ -357,27 +344,23 @@ plot(model_1_log, which = 1,
      cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
-To validate the model in terms of Assumption 5 regarding homoskedasticity, we plot the standardized residuals vs. fitted values for each version. For the untransformed version, we find that the range of errors is relatively constant throughout the range of fitted values. For the transformed model, however, the range of errors is less constant. We note that there are fewer data points at the higher values of **crmrte** than the lower values, so validity in this case may be somewhat weaker than with other assumptions. Nonetheless, this outcome also preferences the untransformed version of the model.
+To validate the model in terms of Assumption 5 regarding homoskedasticity, we plot the standardized residuals vs. fitted values for each version. We find that the range of errors is relatively more constant throughout the range of fitted values for the untransformed model than the transformed model. We note that there are fewer data points at the higher values of **crmrte** than the lower values, so validity in this case may be somewhat weaker than with other assumptions. Nonetheless, this outcome also preferences the untransformed version of the model.
 
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 layout(matrix(c(1,2), 1, 2, byrow = TRUE))
-plot(model_1, which= 3,
-     caption = "", main = "Model 1 (untransformed)", 
+plot(model_1, which= 3, caption = "", main = "Model 1 (untransformed)", 
      cex.main = 1, cex.lab=.75, cex.axis = .75)
-plot(model_1_log, which = 3,
-     caption = "", main = "Model 1 (log)", 
+plot(model_1_log, which = 3, caption = "", main = "Model 1 (log)", 
      cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
-To validate Assumption 6, the normality of the residuals, we examine a Q-Q plot of the standardized residuals for each version of the model.  In general, we observe a fairly straight line for the exceptions of the tails in both versions, with the untransformed model showing substantially more deviation from the fit line at higher quantiles. Normally distributed residuals, as evidenced by consistency to the fit line, indicate that variation in the outcome variable not predicted by the model is likely due to random noise. In this case, the pattern for both versions of the model suggest that there are explanatory variables outside of Model 1 that are influencing the crime rate and biasing our coefficients. Log transformation is specifically intended to normalize the distribution of residuals, so it is expected that this evaluation would preference the log transformed version of the model; it does.  
+To validate Assumption 6, the normality of the residuals, we examine a Q-Q plot of the standardized residuals for each version of the model.  In general, we observe a fairly straight line for the exceptions of the tails in both versions, with the untransformed model showing substantially more deviation from the fit line at higher quantiles. Normally distributed residuals, as evidenced by consistency to the fit line, indicate that variation in the outcome variable not predicted by the model is likely due to random noise, unlike what we see for the untransformed model. Log transformation is specifically intended to normalize the distribution of residuals, so as expected, this evaluation would preferences the log transformed version of the model.  
 
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 layout(matrix(c(1,2), 1, 2, byrow = TRUE))
-plot(model_1, which= 2,
-     caption = "", main = "Model 1 (untransformed)", 
+plot(model_1, which= 2, caption = "", main = "Model 1 (untransformed)", 
      cex.main = 1, cex.lab=.75, cex.axis = .75)
-plot(model_1_log, which = 2,
-     caption = "", main = "Model 1 (log)", 
+plot(model_1_log, which = 2, caption = "", main = "Model 1 (log)", 
      cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
@@ -421,17 +404,15 @@ We summarize the relationships among the new explanatory variables, with the exc
 
 ```{r fig.height=3, fig.width=6, fig.cap = "Scatterplot matrix showing relationships between **polpc**, **prbarr**, **prbconv**, and **pctmin80**."}
 vars <- c("polpc", "prbarr", "prbconv","pctmin80")
-suppressWarnings(scatterplotMatrix(df_clean[,vars], 
-                                   diagonal = (method = "histogram")))
+suppressWarnings(scatterplotMatrix(df_clean[,vars], diagonal = (method = "histogram")))
 ```
 
 The matrix plot shows little collinearity among the considered variables, validating Assumption 3. 
 
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 # Build Model 2
-model_2 = lm(crmrte ~ density + taxpc + pctymle 
-              + west + polpc + prbarr + prbconv + pctmin80, 
-              data = df_clean)
+model_2 = lm(crmrte ~ density + taxpc + pctymle + west + polpc + prbarr + prbconv + pctmin80, 
+             data = df_clean)
 plot(model_2, which = 5)
 ```
 
@@ -439,7 +420,7 @@ Interestingly, the $R^2$ increased from 0.64 (Model 1) to 0.82 with the addition
 
 Assumption 4, exogeneity, is verified below, by checking the plot of residuals against fitted values. We see a fairly flat mean across the entire range of fitted values.
 
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 plot(model_2, which = 1, cex.axis = .75)
 ```
 
@@ -447,17 +428,11 @@ Assumption 5 was validated for this model in the same manner as for Model 1, by 
 
 For Assumption 6, we note that the Q-Q plot of the standardized residuals appears much closer to linear than for Model 1, indicating that the current model includes important sources of variation that were missing from our foundational model.
 
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 plot(model_2, which= 2, cex.axis = .75)
 ```
 
-```{r}
-# KD: I'm just adding this here because I don't see the information anywhere else
-# in this section.  We need a Table 3 with these details.
-summary(model_2)
-```
-
-Model 2, shown in **Table 3**  has positive coefficients for **density**, **taxpc**, **pctymle**, **polpc**, and **pctmin80** indicating that crime rate increases and these variables increase. Conversely, the coefficients for **west**, **prbarr**, and **prbconv** are negative, indicating that crime rate decreases as these increase.  
+Model 2, summarized in **Table 3** in section 4.6.1 has positive coefficients for **density**, **taxpc**, **pctymle**, **polpc**, and **pctmin80** indicating that crime rate increases and these variables increase. Conversely, the coefficients for **west**, **prbarr**, and **prbconv** are negative, indicating that crime rate decreases as these increase.  
 
 #### Statistical Inference for Model 2
 ```{r}
@@ -563,7 +538,7 @@ Implementation of Model 5 shows that population density, tax per capita, and the
 ```{r fig.height=3, fig.width=5}
 # Build Model 5
 model_5 <- lm(ftfcrmrte ~ density + taxpc + pctymle, data=df_clean)
-plot(model_5, which = 5)
+suppressWarnings(plot(model_5, which = 5))
 ```
   
 #### Statistical Inference and Interpretation of Model 5
