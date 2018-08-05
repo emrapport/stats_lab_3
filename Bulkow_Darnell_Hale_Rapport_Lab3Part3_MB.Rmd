@@ -150,7 +150,7 @@ Extracting the face-to-face crime rate involves manipulations on **crmrte** invo
 &= 1 - \frac{1}{\text{mix}+1}
 \end{align}
 
-We use the resulting fraction, multiplied with the value for **crmrte** for a given county, to generate the face-to-face crime rate (i.e., **f2fcrmrte**) for that county. Below, we summarize the distribution of face-to-face crime across the counties of North Carolina in two histograms. On the left, the number of face-to-face crimes per person across counties.  On the right, the proportion of face-to-face crimes to total crimes across counties.
+We use the resulting fraction, multiplied with the value for **crmrte** for a given county, to generate the face-to-face crime rate (i.e., **ftfcrmrte**) for that county. Below, we summarize the distribution of face-to-face crime across the counties of North Carolina in two histograms. On the left, the number of face-to-face crimes per person across counties.  On the right, the proportion of face-to-face crimes to total crimes across counties.
 
 ```{r in-text-fig, fig.height=3, fig.width=5, , fig.cap='Histograms of an alternate dependent variable, face-to-face crime rate.'}
 # Calculate the face-to-face crime rate and examine distribution
@@ -171,7 +171,7 @@ hist(df_clean$crmrte_ratio,
      cex.main = .75, cex.lab=.75, cex.axis = .75)
 ```
 \
-We note that the distribution of the face-to-face crime rate is similar, but not identical to, the general crime rate. In particular, **f2rcrmrte** has a slightly lower mean of 3% (i.e., there are an average of 3 personal crimes per 100 people), and a range of 0.5% to 9.3% (i.e., 0.5-9.3 personal crimes per 100 people) across all counties. As these numbers suggest, the similarity in **crmrte** and **f2fcrmrte** appears to reflect that in most of North Carolina, face-to-face crime makes up 80% or more of all reported crime. In turn, this means that an analysis of crime rates across the state is, in many regards, also an analysis of face-to-face crime rates.  For this reason, we choose to focus our modeling primarily on the more inclusive **crmrte** variable.
+We note that the distribution of the face-to-face crime rate is similar, but not identical to, the general crime rate. In particular, **f2rcrmrte** has a slightly lower mean of 3% (i.e., there are an average of 3 personal crimes per 100 people), and a range of 0.5% to 9.3% (i.e., 0.5-9.3 personal crimes per 100 people) across all counties. As these numbers suggest, the similarity in **crmrte** and **ftfcrmrte** appears to reflect that in most of North Carolina, face-to-face crime makes up 80% or more of all reported crime. In turn, this means that an analysis of crime rates across the state is, in many regards, also an analysis of face-to-face crime rates.  For this reason, we choose to focus our modeling primarily on the more inclusive **crmrte** variable.
 
 ## 4 Models and Assumptions
 To answer our research question (*What variables are associated with crime rates across counties in North Carolina?*), we use ordinary least squares (OLS) regression, also known as multiple linear regression. OLS allows us to determine what associations, if any, exist among the variables in the data set.  We identify a variable to be explained -- the "outcome" variable -- and then perform analyses involving different combinations of "explanatory" (or "predictor") variables from the data set to see the degree to which those variables and combinations can predict the observed outcomes. Each set of calculations, involving the outcome variable and a specific combination of explanatory variables, is referred to as a "model". Models typically build on each other, starting with a few explanatory variables that are determined to be particularly important, and are subsequently extended by adding more explanatory variables in order to increase the predictive value relative to the outcome variable. 
@@ -183,7 +183,7 @@ For the current analysis, we model the variables contributing to crime rate acro
   \item \underline{Model 2} includes the factors from Model 1 as well as several others that we believe contribute meaningfully to crime rate, including location in the state (\textbf{west}), the number of police per 1000 residents (\textbf{polpc}), the ratio of arrests to offenses (\textbf{prbarr}), the ratio of convictions to arrests (\textbf{prbconv}), and the proportion of people who do not identify racially or ethnically as White (\textbf{pctmin80}).  
   \item \underline{Model 3} builds on Model 2 by adding more information about the location of the county (\textbf{central}), the ratio of prison sentences to convictions (\textbf{prbpris}), and the average length of prison sentence (\textbf{avgsen}).  
   \item \underline{Model 4} builds on Model 3 and adds all other explanatory variables in the data set that are not covariant with any explanatory variables already included. 
-  \item\underline{Model 5} explores whether predictors we identify for general crime rate are comparably effective for explaining the rate of face-to-face crime across counties in North Carolina by using the secondary outcome variable \textbf{f2fcrmrte}, based on \textbf{crmrte} and \textbf{mix}.
+  \item\underline{Model 5} explores whether predictors we identify for general crime rate are comparably effective for explaining the rate of face-to-face crime across counties in North Carolina by using the secondary outcome variable \textbf{ftfcrmrte}, based on \textbf{crmrte} and \textbf{mix}.
 \end{itemize}  
 
 Each of our models will be assessed to determine its consistency with the following assumptions, which are standard for classic linear regression models. The statistical quality of our findings is dependent on these assumptions being met.
@@ -194,7 +194,7 @@ Each of our models will be assessed to determine its consistency with the follow
   \item \underline{Assumption 3}: No perfect collinearity, such that none of the variables in the sample is a constant and there is no exact linear relationship among the predictor variables.
   \item \underline{Assumption 4}: Zero conditional mean, such that the statistical error in the model has an expected value of 0 given any values of the predictor variables.
   \item \underline{Assumption 5}: Homoskedasticity, such that the statistical error in the model has the same variance given any value of the predictor variables.
-  \item \underline{Assumption 6}: Normality, such that the statistical error in the population is independent of the predictor variables and is normally distributed with zero mean and variance sigma-squared.
+  \item \underline{Assumption 6}: Normality, such that the statistical error in the population is independent of the predictor variables and is normally distributed about a mean of zero.
 \end{itemize}  
 
 For each of our models, we expect a classical linear model meeting Assumption 1; this is supported by the nature of our variables and the type of analysis we employ. 
@@ -539,7 +539,7 @@ waldtest(model_4, restricted_model, vcov=vcovHC)
 The *F*-test reveals that even the combined statistical significance of the 16 additional variables in the unrestricted Model 4 (*p* = 0.61) is not enough to suggest their joint statistical significance. As such, we fail to reject the null hypothesis that these additional factors have no association with crime rate. 
 
 ### 4.5 Model 5
-Lastly, we return to our face-to-face crime rate and attempt a model using it as the outcome variable. As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the the results for Model 5 and Model 1 will be very similar, as **crmrte** and **f2fcrmrte** are closely associated:
+Lastly, we return to our face-to-face crime rate and attempt a model using it as the outcome variable. As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the the results for Model 5 and Model 1 will be very similar, as **crmrte** and **ftfcrmrte** are closely associated:
 
 ```{r fig.height=3, fig.width=5}
 plot(crmrte ~ ftfcrmrte, data = df_clean,
