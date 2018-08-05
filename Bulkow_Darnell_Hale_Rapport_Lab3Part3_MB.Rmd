@@ -19,7 +19,6 @@ library(corrplot)
 ```
 
 ## 1 Introduction
-
 As advisers to political campaigns for state office, we believe that the crime rates across the state should be of central concern to any candidate.  State and local governments desire to control the crime rate in order to assure constituents that their communities are safe, and rigorous data analysis is needed to understand the factors that contribute to crime in different parts of the state. This report examines data related to crime rates provided by a current campaign in North Carolina (NC) and attempts to answer the following research question: *What variables are associated with crime rates across counties in North Carolina?*  
 
 Guided by this research question, we first examine, clean, and transform the provided data. We then propose a framework for understanding crime rates motivated by the concepts of *means*, *motive*, and *opportunity*, and link these concepts to specific variables in the data set. We then specify a model motivated by this three-part framework and examine its implications and statistical significance. Based on the findings of our primary analysis and other data exploration, we propose and interpret alternative models that provide additional predictive power. Our analysis is used to generate policy suggestions applicable to candidates seeking or defending office in North Carolina. In addition, we suggest a range of omitted variables that could form the foundation of future research on crime rates across the state.
@@ -86,10 +85,9 @@ The NCESC wage data do not include details regarding the number or proportion of
 Next, we evaluate the available data, clean it by removing anomalous values, and transform relevant variables.  
 
 ## 2.1 Data Adjustments and Anomalies
-
 The data set has several ratio variables, including **prbarr**, **prbpris**, **pctymle**, and **mix**, that are presented as decimal values between 0-1. To facilitate comparing the coefficients for these variables more easily with other numerical values in the data set, we converted their scale to 0-100, as in percentages.  
 
-The exception to the percentage conversion was **prbconv**, which reflects the ratio of convictions to arrests.  This variable has several values that are greater than 1, which seems anomalous, if not erroneous. However, it is also the case that the **prbconv** values were calculated using numerators and denominators from different sources (i.e., the NCDOC and the the FBI:UCR program, respectively). Thus, we suspect that the extreme cases reflect a common preference among states to report criminal convictions in significant detail, even if all of the crimes for which individuals are convicted do not correspond with specific arrests that would be reported to the federal government. Larger numbers of convictions make state and local criminal justice systems appear "tough on crime," which tends to be popular with residents. We chose to leave the scale of this variable unmodified, as converting it to 0-100 did not seem to improve its interpretability. 
+The exception to the percentage conversion was **prbconv**, which reflects the ratio of convictions to arrests.  This variable has several values that are greater than 1, which seems anomalous, if not erroneous. However, it is also the case that the **prbconv** values were calculated using numerators and denominators from different sources (i.e., the NCDOC and the the FBI:UCR program, respectively). Thus, we suspect that the extreme cases reflect a common preference among states to report criminal convictions in significant detail, even if all of the crimes for which individuals are convicted do not correspond with specific arrests that would be reported to the federal government. Larger numbers of convictions make state and local criminal justice systems appear "tough on crime," which tends to be popular with residents. We chose to leave the scale of this variable unmodified to avoid exaggerating any discrepancies in the measure that may have resulted from using multiple sources to calculate the values. 
 
 The variable **polpc** represents the number of police officers per known resident in a county, which is somewhat intangible on an individual scale.  That is, it is awkward to refer to "0.004 police officers per person." To address this, we multiplied the scores for this variable by 1000, facilitating descriptions such as "4 police officers per 1000 people."
 
@@ -124,7 +122,6 @@ stargazer(df_clean[,3:25], title = "Summary of Descriptive Statistics for All Va
           table.placement = "!h", header = FALSE)
 ```
 ## 3 Understanding Crime Rate
-
 Our central goal for this analysis is to determine what variables are most clearly predictive of crime across the different counties of North Carolina. For this reason, we will use **crmrte** as our primary outcome variable.
 
 To begin, we use Table 1 to examine the distribution of **crmrte** to determine its center and variability, based on data from 90 counties; there are no missing cases. This review reveals that the value of **crmrte** ranges from approximately 0.006 to 0.099, with a mean of approximately .034. In practical terms, this means that the 1987 crime rate in North Carolina varies from approximately 0.6 to 9.9 crimes per 100 people, with an average of 3.4 crimes per 100 people.
@@ -177,7 +174,6 @@ hist(df_clean$crmrte_ratio,
 We note that the distribution of the face-to-face crime rate is similar, but not identical to, the general crime rate. In particular, **f2rcrmrte** has a slightly lower mean of 3% (i.e., there are an average of 3 personal crimes per 100 people), and a range of 0.5% to 9.3% (i.e., 0.5-9.3 personal crimes per 100 people) across all counties. As these numbers suggest, the similarity in **crmrte** and **f2fcrmrte** appears to reflect that in most of North Carolina, face-to-face crime makes up 80% or more of all reported crime. In turn, this means that an analysis of crime rates across the state is, in many regards, also an analysis of face-to-face crime rates.  For this reason, we choose to focus our modeling primarily on the more inclusive **crmrte** variable.
 
 ## 4 Models and Assumptions
-
 To answer our research question (*What variables are associated with crime rates across counties in North Carolina?*), we use ordinary least squares (OLS) regression, also known as multiple linear regression. OLS allows us to determine what associations, if any, exist among the variables in the data set.  We identify a variable to be explained -- the "outcome" variable -- and then perform analyses involving different combinations of "explanatory" (or "predictor") variables from the data set to see the degree to which those variables and combinations can predict the observed outcomes. Each set of calculations, involving the outcome variable and a specific combination of explanatory variables, is referred to as a "model". Models typically build on each other, starting with a few explanatory variables that are determined to be particularly important, and are subsequently extended by adding more explanatory variables in order to increase the predictive value relative to the outcome variable. 
 
 For the current analysis, we model the variables contributing to crime rate across the counties of North Carolina in five stages, resulting in five models. An overview of each model is provided below.
@@ -210,7 +206,6 @@ Assumptions 3-6, which are dependent on the explanatory variables involved, will
 For each model, we also calculate the statistical significance of each of its coefficients. This allows us to use our models for hypothesis testing. The null hypothesis for each model coefficient, $\beta_j$, is $\beta_j=0$, meaning that the predictor variable, $x_j$, has no association with the outcome variable. Statistical significance, defined as *t*-values with probabilities (i.e., *p*-values) of less than 0.05, allows us to reject the null hypothesis, and state that the given predictor has a statistically significant relationship with the outcome. As a statistically conservative best practice, we use heteroskedasticity-robust standard errors for our models even if they meet the assumption of homoskedasticity.
 
 ### 4.1 Model 1
-
 We frame our initial model around the concepts of *means*, *motive*, and *opportunity*, or the situational elements that typically need to be present for an individual to be found guilty of a crime. We extend this framework to the community level, proposing that communities that have more means, motives, and opportunities for crime to occur will also be those with higher crime rates.
 
 We conceptualize the relationship between our tripartite framework and key variables from our data set as follows:
@@ -222,7 +217,6 @@ We conceptualize the relationship between our tripartite framework and key varia
     \end{itemize} 
     
 #### 4.1.1 Evaluating the Variables
-
 An exploratory examination of the data suggests that this framework of means, motive, and opportunity is useful with regard to crime rates in North Carolina. All three of our selected variables are strong predictors of the general crime rate, as shown in the correlation grid and scatter plots below.  
 
 ```{r fig.height=3, fig.width=5, fig.cap= "Correlation grid comparing crime rate, density, tax revenue per capita, and percent young male."}
@@ -286,7 +280,6 @@ hist(df_clean$pctymle,
 Across the counties of North Carolina, the percentage of males between 15-24 years of age ranges from 6.2 to 24.9.  Once again, we see a distribution that is right skewed, with the majority of counties having fewer than the mean of 8.4% young males. There is one extreme value: that for Onslow county (FIPS 133). This reflects that Onslow county includes the city of Jacksonville, which contains the United States Marine Corps' Camp Lejeune and the New River Air Station, both of which are inhabited predominately by males between 18-25 years of age. 
 
 #### 4.1.2 Evaluating Assumptions
-
 Before we build our model, we check the correlations between our independent and predictor variables to assess the variables' consistency with Assumption 3 regarding no perfect collinearity.  We can reference the correlation matrix above to see that all the correlations among our variables are less than 1. Specifically, **crmrte** is positively predicted, in descending order, by **density** (*r* = .73), **taxpc** (*r* = .45), and **pctymle** (*r* = .29).  Additionally, **density** shows a strong positive correlation with **taxpc** (*r* = .32) and a weaker positive correlation with **pctymle** (*r* = .12). None of the variables are perfectly collinear with any of the others, so Assumption 3 is validated. 
 
 Given the skewed nature of **crmrte**, we explore a log transform of the dependent variable and build two versions of Model 1: one with untransformed **crmrte** and one with a log transform of **crmrte**. A comparison of the two versions (**Table 2**) and their consistency with the statistical assumptions allows us to select the better foundational model.  
@@ -363,7 +356,6 @@ Overall, our comparison of the untransformed and transformed versions of Model 1
 _From this point forward, Model 1 will refer to the untransformed version of the model only._
 
 #### 4.1.3 Statistical Inference for Model 1
-
 The matrix below summarizes the coefficients, heteroskedasticity-robust standard errors, *t*-values, and *p*-values for the parameters in Model 1. The coefficient on **density** is statistically significant at the .0001 level; the one for **pctymle** is statistically significant at a .05 level. As such, we can reject the null hypotheses that 1) there is no association between **density** and **crmrte** and 2) there is no association between **pctymle** and **crmrte**. We fail to reject the null hypothesis that there is no association between **taxpc** and **crmrte**. 
 
 ```{r}
@@ -371,7 +363,6 @@ coeftest(model_1, vcov = vcovHC)
 ```
 
 #### 4.1.4 Interpreting Model 1
-
 Our selected version of Model 1 is a level-level model, indicating neither the outcome nor any of the predictors have been transformed.  For this reason, we interpret the coefficient for each predictor as describing the magnitude of the associated change in **crmrte** given a one-unit increase in the predictor, holding all other predictors constant.
 
 As shown in Table 2, the coefficients in Model 1 are all positive. This indicates that as the population density, tax per capita, or the percentage of young males increase, an associated increase occurs in the crime rate.  For example, our model predicts that, when the other predictors are held constant, a one-unit increase in **density** is associated with approximately a 0.0076 increase in the **crmrte**, and this change is statistically significant. In other words, for every additional 100 people per square mile of land, the crime rate increases by .0076; moreover, this change is too large to be attributable purely to chance. Similarly, a one-unit (1%) increase in **pctymle** is associated with a statistically significant 0.002 increase in **crmrte**. In contrast, the one-unit ($100US) increase in **taxpc**  is associated with a non-significant 0.0004 increase in **crmrte**.
@@ -389,109 +380,130 @@ Our framework associates **taxpc** in an area with potential *motive* for commit
 Another variable of interest suggested by our analysis is the level of **tourism**.  In areas where there is a lot of tourism, there may be special circumstances that contribute to the crime rate.  If tourism is seen by a community as an opportunity for good employment and additional funding for community infrastructure and beneficial social programs, we would expect this to lower the crime rate, particularly against visitors. If, on the other hand, it is viewed as an influx of distracted strangers with an abundance of extra money and little familiarity with the local environment, the crime rate would likely go up. Tourism contributes positively to the economy of North Carolina and reduces the direct tax burden on residents, while encouraging improvements in infrastructure and community facilities. To the extent a candidate can frame tourism and the support thereof as a strong positive for the their constituency (e.g., as one means to reduce local socioeconomic disparity), constituents may be less likely to want to engage in criminal activity that negatively influences the tourism industry.
 
 ### 4.2 Model 2
+For Model 2, we include additional variables that seem to fit into our *means, motive, and opportunity* framework -- albeit less neatly -- and have substantial correlations with the crime rate. Of particular interest in this model is identifying other elements of the data set that relate to the *motive* dimension of our conceptualization of crime rate, as **taxpc** did not show a significant predictive effect.
 
-For Model 2, we include additional variables that seem to fit into our *means, motive, and opportunity* framework -- albeit less neatly -- and have substantial correlations with the crime rate. With regard to the *motive* dimension, we expect the rates of arrest (**prbarr**) and conviction (**prbconv**), as well as the number of police per capita (**polpc**) to have a negative impact on the crime rate. That is, the more likely one is to get caught and suffer negative consequences for engaging in criminal activity, the less likely one is to do it. 
+We begin by hypothesizing that the more likely one is to get caught and suffer negative consequences for engaging in criminal activity, the less likely one is to want to do it. As such, we expect variables like the ratio of arrests to offenses (**prbarr**), the ratio of convictions to arrest (**prbconv**), and the number of police per capita (**polpc**) to have a negative impact on the crime rate.
 
-Also in conjunction with *motive*, we explore the relationship between **crmrte** and **pctmin80**, and **crmrte** and **west**. In these cases, we anticipate a positive relationship with crime rate because of socioeconomic disparity. That is, in communities with higher percentages of non-White minorities (**pctmin80**), conflict may arise between Whites and others if the Whites are perceived to be undeservedly privileged or Whites perceive that other are attempting to infringe on their privilege.  Similarly, in the western part of the state (**west**), there are numerous communities of lower socioeconomic status who are visited by higher status tourists eager to explore Appalachia and its unique culture. In this context, we can imagine that the marginalized communities of rural Appalachia might have similar feelings of resentment toward those who view them as part of a cultural tourist attraction and members of advantaged communities from outside Appalachia might feel entitled to mistreat natives to the region. That is, we want to explore how socioeconomic and/or sociopolitical disparities might relate to the willingness to commit crime.
+We also hypothesize that socioeconomic disparity could encourage the involuntary redistribution of resources between those who have more and those who have less. To explore this, as well as the role that race/ethnicity might play in this phenomenon, we add **pctmin80** and **west** to the model. For these variables, we anticipate a positive relationship with **crmrte**, because of the socioeconomic disparity that is often associated with the communities these variables represent. That is, in areas with higher percentages of non-White minorities, conflict may arise between Whites and others if Whites are perceived by the others to be undeservedly or disproportionately privileged or Whites perceive that the others are attempting to infringe on their privilege.  Similarly, in the western part of the state, there are numerous communities of lower socioeconomic status who are visited by higher status tourists from outside the region, eager to explore Appalachia and its unique culture. In this context, we can imagine that the marginalized communities of rural Appalachia might have feelings of resentment toward outsiders who view them as part of a cultural tourist attraction, whereas members of advantaged communities from outside Appalachia might feel entitled to mistreat or exploit natives to the region because they are poor. The race/ethnicity dimension emerges when we consider that minority communities are, by definition, not White, whereas the population of western North Carolina is predominantly White.  Should **pctmin80** pattern differently than **west** in the model, it could suggest that marginalized communities experience crime differently, depending on their racial/ethnic composition.
 
-We summarize the relationships among the new explanatory variables, with the exception of **west** (coded effectively as "in the western part of the state" or "not in the western part of the state").  For the data set as a whole, 24.4 % of all counties were coded as being **west**.
+Below, we display the relationships among the continuous explanatory variables. The variable **west**, which is coded as an indicator variable (i.e., each county is either "in the western part of the state" or "not in the western part of the state"), is not included. We note that for the data set as a whole, 24.4 % of all counties were coded as being in the western part of the state.  
 
 ```{r fig.height=3, fig.width=6, fig.cap = "Scatterplot matrix showing relationships between **polpc**, **prbarr**, **prbconv**, and **pctmin80**."}
 vars <- c("polpc", "prbarr", "prbconv","pctmin80")
 suppressWarnings(scatterplotMatrix(df_clean[,vars], diagonal = (method = "histogram")))
 ```
 
-The matrix plot shows little collinearity among the considered variables, validating Assumption 3. 
+The matrix plot shows little collinearity among the considered variables, validating Assumption 3 for Model 2. 
+
+Next, we build the model and evaluate its consistency with the remaining statistical assumptions. To conserve space and avoid repetition, we will not detail all aspects of the results here, but summarize the findings for all the models in **Table 3** in section 4.6.1. here we will simply focus on the most important findings related to validating and interpreting the model.
 
 ```{r fig.height=2.8, fig.width=5}
 # Build Model 2
 model_2 = lm(crmrte ~ density + taxpc + pctymle + west + polpc + prbarr + prbconv + pctmin80, 
              data = df_clean)
-plot(model_2, which = 5)
 ```
 
-Interestingly, the $R^2$ increased from 0.64 (Model 1) to 0.82 with the addition of our five *motive*-related variables. We note that point 25 still has high leverage, but as it is a single point and its status in this regard has not changed between Models 1 and 2, we are generally unconcerned about it.
+We observe that Model 2 has positive coefficients for **density**, **taxpc**, **pctymle**, **polpc**, and **pctmin80**, indicating that crime rate increases as these variables increase. Conversely, the coefficients for **west**, **prbarr**, and **prbconv** are negative, indicating that crime rate decreases as these increase. We also see that the adjusted $R^2$ has increased from approximately 63% to 82% between Model 1 and Model 2, indicating improved predictive power relative to **crmrte* with the addition of the new *motive*-related variables.
+
+Now to examine the model with regard to the remaining assumptions. First, we look to see any unexpected data points display unusual influence in the new model.
+
+```{r fig.height=2.8, fig.width=5}
+# Influence plot
+plot(model_2, which = 5,
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
+```
+
+We note that point 25 still has high leverage, but as it is a single point and its status in this regard has not changed between Models 1 and 2, we are generally unconcerned about it.
 
 Assumption 4, exogeneity, is verified below, by checking the plot of residuals against fitted values. We see a fairly flat mean across the entire range of fitted values.
 
 ```{r fig.height=2.8, fig.width=5}
-plot(model_2, which = 1, cex.axis = .75)
+plot(model_2, which = 1, 
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
-Assumption 5 was validated for this model in the same manner as for Model 1, by examining the plot of standardized residuals vs. fitted values.  As before, we find that the range of errors is relatively constant throughout the range of fitted values, with fewer data points at the higher end the fitted values' scale.
-
-For Assumption 6, we note that the Q-Q plot of the standardized residuals appears much closer to linear than for Model 1, indicating that the current model includes important sources of variation that were missing from our foundational model.
+Assumption 5 is validated for this model in the same manner as for Model 1, by examining the plot of standardized residuals vs. fitted values.  As before, we find that the range of errors is relatively constant throughout the range of fitted values, with fewer data points at the higher end the fitted values' scale.
 
 ```{r fig.height=2.8, fig.width=5}
-plot(model_2, which= 2, cex.axis = .75)
+plot(model_2, which= 2, 
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
-Model 2, summarized in **Table 3** in section 4.6.1 has positive coefficients for **density**, **taxpc**, **pctymle**, **polpc**, and **pctmin80** indicating that crime rate increases and these variables increase. Conversely, the coefficients for **west**, **prbarr**, and **prbconv** are negative, indicating that crime rate decreases as these increase.  
-
+For Assumption 6, we note that the Q-Q plot of the standardized residuals appears much closer to linear than for Model 1, indicating that the current model includes important sources of variation that were missing from our foundational model.
+ 
 #### Statistical Inference for Model 2
 ```{r}
 coeftest(model_2, vcov = vcovHC)
 ```
-The heteroskedasticity-robust *t*-test for Model 2 shows that, with the exception of **west**, all of the new variables we added to the model are statistically significant to at least a .01 level. As such, we can reject the null hypotheses that police per capita (**polpc**), arrests per offenses (**pbarr**), convictions per arrests (**pbconv**), and percentage of non-Whites (**pctmin80**) have no association with **crmrte**. Conversely, we fail to reject the null hypothesis with regard to the **west** region, such that whether a county is in the western part of the state has no predictive value with regard to the crime rate. As in Model 1, the we fail to reject the null hypothesis regarding tax per capita (**taxpc**).
+The heteroskedasticity-robust *t*-test for Model 2 shows that, with the exception of **west**, all of the new variables we added to the model are statistically significant to at least a .01 level. As such, we can reject the null hypotheses that police per capita (**polpc**), arrests per offenses (**pbarr**), convictions per arrests (**pbconv**), and percentage of non-Whites (**pctmin80**) have no association with **crmrte**. Conversely, we fail to reject the null hypothesis with regard to the **west** region, such that whether a county is in the western part of the state has no predictive value with regard to the crime rate. As in Model 1, we again fail to reject the null hypothesis regarding tax per capita (**taxpc**).
 
 #### Interpreting Model 2
 The pattern of significance for the three foundational variables included in Model 1 has not changed. As such, our interpretation of Model 2 will focus the variables that were added at this stage. 
 
 As expected, the ratio of arrests to offenses and of convictions to arrests are negatively predictive of crime rate.  This suggests that as the risk of punishment for committing crime increases, the crime rate decreases. In addition, where crime rates are lower, it is easier for law enforcement officers to more thoroughly investigate crimes, leading to more arrests and convictions. Also as expected, the percentage of non-Whites is positively predictive of crime rate, such that counties that have more racial/ethnic minorities experience higher crime rates.
 
-Contrary to expectation, the number of police officers per capita (**polpc**) is *positively* predictive of crime rate. That is, more police don't discourage crime.  Rather, the more police there are in a county, the higher the crime rate is. We interpret this to mean that the presence of more police results in more criminals being arrested and convicted for crimes that are committed, whereas fewer criminals are actually observed, arrested, or convicted in places where there are fewer law enforcement officers.
+Contrary to expectation, the number of police officers per capita (**polpc**) is *positively* predictive of crime rate. That is, having more police officers in an area doesn't discourage crime.  Rather, the more police there are in a county, the higher the crime rate is. We interpret this to mean that the presence of more police results in more criminals being arrested and convicted for crimes that are committed, whereas fewer criminals are actually observed, arrested, or convicted in places where there are fewer law enforcement officers.
 
 There is no meaningful statistical relationships between whether or not a county is in the western part of the state (**west**) and crime rate. This is interesting, because those of lower socioeconomic status in Appalachia are predominantly White. This contrasts with those of traditionally lower socioeconomic status in urban settings, who are typically not White. As such, the difference in significance between the predictive power of the percentage of non-White minorities and the location in the western part of the state suggests that race/ethnicity, not socioeconomic class, is more relevant to crime rate.  What is not clear is if racial/ethnic minorities are more likely to be arrested and convicted of crime than their White counterparts of comparable socioeconomic status, or if there is truly more crime in minority communities than White communities, even in cases where socioeconomic status is generally held constant.  Another possibility is that the popularity of tourism in the western part of the state mitigates the impact of lower socioeconomic status on crime, resulting in poorer White communities experiencing less crime in North Carolina because of where they are in the state, their contribution to White Americana, and the likelihood that most tourists are White. Given the long and complicated history of race/ethnicity and socioeconomic status in the South, we think this is an important area for future research that has powerful policy implications. We cannot, however, address all of the relevant issues here with the current data set.
 
 ### 4.3 Model 3
+For Model 3, our goal was to add any other variables in the data set that we have sufficient detail about to interpret and that are not strongly covariant with any of the variables already in Model 2.  It is not our expectation that adding these variables will substantially improve the predictive value of the model, but it will help us to evaluate how close Model 2, which explains nearly 81% of the variance in crime rate, is to the boundary of our data set's explanatory power.   
 
-For Model 3, in addition to the variables from Model 2, we added the remainder of the variables that we did not find problematic: **central**, **avgsen**, **prison**.  These variables do not necessarily explain the crime rate well, but serve to show that Model 2 gives a reasonable explanation of the observed crime rate. We excluded the urban variable because it is too closely related to density, as can be seen in this scatter plot:
+For this model, we additionally consider whether or not a county is in the central part of the state (**central**), the ratio of prison sentences to convictions (**prbpris**), and the average prison sentence following conviction for a crime (**avgsen**).  Given that counties in the center of the state include some of the largest cities (e.g., Raleigh, Durham, Greensboro, Charlotte) and cities tend to have more crime than rural areas, we expect **central** to have a positive relationship with **crmrte**.  As in Model 2, we expect the variables related to punishment for crimes, such as **prbpris** and **avgsen**, to also be negatively associated with **crmrte**; as punishments increase in their likelihood and severity, people should be less likely to engage in criminal activity.
+
+One variable we do not include in this model is **urban**, or whether a county is designated as predominantly urban by the U.S. Census.  This is because our preliminary analysis suggested **urban** is highly correlated with **density**, which is one of our key explanatory variables.  The scatterplot below shows the strength of this relationship:
 
 ```{r fig.height=3, fig.width=5}
 plot(df_clean$urban , df_clean$density,
-     main= "Density vs Urban",
-     ylab= "Density (100 people per square mile)",
-     xlab= "Urban", cex.axis = .75)
+     main= "Population Density vs Urban Status",
+     ylab= "Population Density",
+     xlab= "Urban Status", cex.main = 1, cex.lab=.75, cex.axis = .75)
 abline(lm(density ~ urban, data = df_clean))
 ```
 
-Excluded are all of the wage variables because we cannot make any meaningful conclusions without a breakdown of what fraction of each county are involved in each profession.
+We build the model and evaluate its consistency with the remaining statistical assumptions. The detailed results can be seen in **Table 3**. We observe that none of the new variables have statistically significant coefficients, nor does the predictive value of the model, as measured by the adjusted $R^2$, change relative to Model 2.
 
-With that, we build Model 3, and summarize it in **Table 3**.
 ```{r fig.height=3, fig.width=5}
 # Build Model 3
 model_3 = lm(crmrte ~ density + taxpc + pctymle 
              + west + polpc + prbarr + prbconv + pctmin80 
              + central + avgsen + prbpris, 
              data = df_clean)
-plot(model_3, which= 5)
+```
+
+
+We briefly examine the model with regard to the remaining assumptions. 
+
+```{r fig.height=3, fig.width=5}
+# Evaluate influence in Model 3
+plot(model_3, which= 5,
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
 We note that point 25, representing Dare county, is still exhibiting a Cook's distance of greater than 1.
 
-Assumption 3 was tested by evaluating and eliminating the chance of any perfect collinearity between these variables.
+We test Assumption 3 by evaluating whether any of the variables display perfect collinearity with any of the others, and find that none do.
 
-To justify Assumption 4, exogeneity, we check the plot of residuals against fitted values. We see a fairly flat mean across the entire range of fitted values.
+To validate Assumption 4, exogeneity, we check the plot of residuals against fitted values and observe a fairly flat mean across the entire range of fitted values.
 
 ```{r fig.height=3, fig.width=5}
-plot(model_3, which = 1, cex.axis = .75)
+plot(model_3, which = 1, 
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
 
-Assumptions 5 and 6 were validated for this model as they were for Models 1 and 2.
+Assumptions 5 and 6 are validated for this model just as they were for Models 1 and 2.
 
-We note that the $R^2$ for this model, at 0.83, is negligibly better than the $R^2$ for Model 2. This model, while interesting as an upper bound on what can reasonably be included in a model, should not be used to influence policy decisions.
 
 ### Statistical Inference and Interpretation for Model 3
 ```{r}
 coeftest(model_3, vcov = vcovHC)
 ```
-Our heteroskedasticity-robust t-test shows that none of the added variables are statistically significant at a .05 level. This means we cannot reject the null hypothesis that each variable in **central**, **avgsen**, and **prbpris** has no association with **crmrte**. For this reason, in conjunction with the low practical significance of the small coefficients, we opt not to make policy recommendations based on these variables. 
+Our heteroskedasticity-robust *t*-test shows that none of the added variables are statistically significant at a .05 level. This means we cannot reject the null hypotheses for **central**, **avgsen**, and **prbpris** as they relate to **crmrte**.  In practical terms, this means that whether a county is in the central part of the state does not effectively predict that county's crime rate, nor does it seem to matter what the likelihood or severity of prison sentences are. Given this evidence, we opt not to make policy recommendations based on these variables. 
 
 ### 4.4 Model 4
+For this model, we include every variable in the data set.  This is done to set an upper limit on the possible $R^2$, or predictive power of the data at hand.  The resulting model is not a parsimonious one, and thus will not be used as the basis for any policiy recommendations.  
 
-For this model, we included every variable available to us, simply to set an upper limit on the possible $R^2$.  The resulting model is not a parsimonious one, and as such, we should not use it for policy decisions.  However, it is interesting to note that the $R^2$ rises to 0.85 (seen in **Table 3**), which is not much higher than Model 2.  Additionally, many points exceeding a Cook's distance of 1 are observed.
-
-```{r fig.height=3, fig.width=5}
+```{r}
 # Build Model 4
 model_4 = lm(crmrte ~ density + taxpc + pctymle 
              + west + polpc + prbarr + prbconv + pctmin80 
@@ -499,16 +511,24 @@ model_4 = lm(crmrte ~ density + taxpc + pctymle
              + urban + wcon + wtuc + wtrd + wfir + wser 
              + wmfg + wfed + wsta + wloc + mix, 
              data = df_clean)
-plot(model_4, which = 5)
 ```
+
+We refer the reader to **Table 3** for the details of this model, but note that the adjusted $R^2$ remains at 81%, the same as Model 2. In the leverage plot below, the points for Dare county and Warren county display Cook's values of 1 or more. Otherwise, we will not evaluate this model.
+
+```{r fig.height=3, fig.width=5}
+# Evaluate influence plot
+plot(model_4, which = 5,
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
+```
+
 
 #### Statistical Inference and Interpretation for Model 4
 ```{r}
 coeftest(model_4, vcov = vcovHC)
 ```
-As with Model 3, we see that none of the new variables added in this model are statistically significant at a .05 level. However, it is worth noting that the statistical significance of several of our Model 1 and 2 variables have decreased as a result of these new variables being in the model. While **polpc**, **prbarr**, **prbconv**, **pctmin80**, **pctymle**, and **density** all have coefficients that remain statistically significant in this model, the absolute values of each of their t-scores is lower than it was in prior models, which suggests that some of the effect of these variables in previous models has been absorbed by the new variables. 
+As with Model 3, we see that none of the new variables are statistically significant at the .05 level. More importantly, we observe that the statistical significance of several of our Model 1 and 2 variables -- including **polpc**, **prbarr**, **prbconv**, **pctmin80**, **pctymle**, and **density** -- has decreased as a result of these new variables being added. This suggests that the effect of these established variables has been absorbed by the new variables, although the mechanism(s) of this change are not transparent. 
 
-Though we have many predictors in this model that are not statistically significant on their own, it is possible that they could have joint significance, which we can determine using an F-test. To do this, we create a restricted model with only our statistically significant covariates, and compare this restricted model to the unrestricted Model 4 to see if the combined effect of Model 4's individually insignificant variables is statistically significant.
+Before concluding our statistical analysis for Model 4, we think it would be useful to explore whether any of the explanatory variables are jointly significant with regard to the crime rate. This can be determined using an *F*-test. Specifically, we will create a restricted model containing only the statistically significant covariates, and compare this restricted model to the unrestricted Model 4 to see if the combined effect of Model 4's individually insignificant variables changes to become statistically significant.
 
 ```{r}
 restricted_model <- lm(crmrte ~ density + pctymle + polpc 
@@ -516,22 +536,31 @@ restricted_model <- lm(crmrte ~ density + pctymle + polpc
 waldtest(model_4, restricted_model, vcov=vcovHC)
 ```
 
-Our F-test shows that even the combined statistical significance of the 16 additional variables in the unrestricted model is not enough to argue for the joint statistical significance of these additional variables. With a p-value of 0.6131, we are far from the 0.05 critical value we would need to reject the null hypothesis that these additional values have no association with crime rate. 
+The *F*-test reveals that even the combined statistical significance of the 16 additional variables in the unrestricted Model 4 (*p* = 0.61) is not enough to suggest their joint statistical significance. As such, we fail to reject the null hypothesis that these additional factors have no association with crime rate. 
 
 ### 4.5 Model 5
-
-We now return to our face-to-face crime rate and attempt a model using it as the dependent variable. As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the the results for Model 5 and Model 1 will be very similar, as **crmrte** and **f2fcrmrte** are closely associated:
+Lastly, we return to our face-to-face crime rate and attempt a model using it as the outcome variable. As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the the results for Model 5 and Model 1 will be very similar, as **crmrte** and **f2fcrmrte** are closely associated:
 
 ```{r fig.height=3, fig.width=5}
 plot(crmrte ~ ftfcrmrte, data = df_clean,
-     main = "Total Crime vs Face to Face Crime")
+     main = "Overall Crime vs Face-to-Face Crime",
+     xlab = "Face-to-face Crime Rate",
+     ylab = "Overall Crime Rate",
+     cex.main = 1, cex.lab=.75, cex.axis = .75)
 ```
-
-Implementation of Model 5 shows that population density, tax per capita, and the percentage of young males in the population explain approximately 63% (see **Table 3**) of the variation in the face-to-face crime rate; this is almost identical to their predictive power relative to general crime rate. 
 
 ```{r fig.height=3, fig.width=5}
 # Build Model 5
 model_5 <- lm(ftfcrmrte ~ density + taxpc + pctymle, data=df_clean)
+```
+
+Implementation of Model 5 shows that population density, tax per capita, and the percentage of young males in the population explain approximately 62% of the variation in the face-to-face crime rate; this is almost identical to their predictive power relative to general crime rate. 
+The results of this analysis are summarized in **Table 3**.
+
+Below, we see that the leverage plot for Model 5 is virtually identical to that for Model 1. 
+
+```{r fig.height=3, fig.width=5}
+# Evaluate influence plot
 suppressWarnings(plot(model_5, which = 5))
 ```
   
@@ -540,12 +569,14 @@ suppressWarnings(plot(model_5, which = 5))
 ```{r}
 coeftest(model_5, vcov=vcovHC)
 ```
-The t test on coefficients for Model 5 closely resembles that of Model 1, with **density** and **pctymle** showing statistical significance at the .05 level and **taxpc** not demonstrating statistical significance (though it is, perhaps, worth noting that **pctymle** has greater statistical significance in this model than it did in Model 1). Given that we see very similar practical and statistical significance for the covariates in this model and the covariates in Model 1, the answer to our corollary question, *What are the variables associated with the **face-to-face** crime rates across counties in North Carolina?*, appears to be "The same variables that are associated with the general crime rate, and the impact is of a comparable scale."
+The *t*-test on coefficients for Model 5 closely resembles that of Model 1, with **density** and **pctymle** showing statistical significance at the .05 level, and **taxpc** failing to  demonstrate statistical significance. We note with interest that **pctymle** has greater statistical significance in this model than it did in Model 1, suggesting that the percent of young males in a county has a stronger relationship with the rate of personal crime than for the rate of crime in general. 
 
-As noted previously, our experience indicates that constituents are interested in policies and programs intended to reduce crime, but are especially concerned with those directed at reducing personal crime. Model 5 demonstrates to the candidate that policies and programs intended to reduce the general crime rate, about which we have made a number of recommendations, are also likely to reduce the personal crime rate. What matters most in this case is constituents' *perception*: The candidate is likely to get more support for policies and programs that are framed in terms of reducing personal crime -- particularly violent crime. Moreover, the candidate can promote policies and programs in terms of reducing personal crime while knowing that implementation of these policies should also reduce the general crime rate. This analysis provides a foundation for the candidate to pursue this strategy without sacrificing veracity or efficiency.
+Given that we see very similar practical and statistical significance for the covariates in Models 1 and 5, the answer to our corollary question, *What are the variables associated with the **face-to-face** crime rates across counties in North Carolina?*, appears to be "The same variables that are associated with the general crime rate, and the impact is generally on a comparable scale." That being said, it does appear that the percentage of young males may have a special relationship with the rate of face-to-face crime that would be a useful topic of future research.
 
-### 4.6 Model Summary
-The models built above are summarized in **Table 3**. Of note, Model 2 appears to be the best balance of predictive ability and parsimony of these five judging by the highest adjusted $R^2$ and the lowest AIC value.
+As noted previously, our experience indicates that constituents are interested in policies and programs intended to reduce crime, but are especially concerned with those directed at reducing personal crime. Model 5 demonstrates to the candidate that policies and programs intended to reduce the general crime rate, about which we have made a number of recommendations, are also likely to reduce the personal crime rate. What matters most in this case is constituents' *perception*: The candidate is likely to get more support for policies and programs that are framed in terms of reducing personal crim, particularly violent crime. Moreover, the candidate can promote policies and programs in terms of reducing personal crime while knowing that implementation of these policies should also reduce the general crime rate. This analysis provides a foundation for the candidate to pursue this strategy without sacrificing veracity or efficiency.
+
+### 4.6 Model Summaries
+**Table 3** summarizes the results of all five of the presented models. Model 2 appears to be the best balance of predictive ability and parsimony, given that it has the highest adjusted $R^2$ and the lowest AIC value.
 
 ```{r, results='asis'}
 
@@ -565,45 +596,42 @@ stargazer(model_1, model_2, model_3, model_4, model_5, type = "latex",
           star.cutoffs = c(0.05, 0.01, 0.001))
 ```
 
-
-
 ### 4.7 Reservations & Caveats
+Although we are generally pleased with the outcome of our analysis, we note several reservations we have about the data and the findings, along with caveats we believe the reader should consider when interpreting the results and evaluating our recommendations. 
 
-As we have previously noted, the data we have been provided may not comprise a simple random sample of any broader population. Among counties in North Carolina in 1987, we do not know if the criteria of their selection were truly random, nor their measurements independent (geographically close counties, for instance, could see mutually dependent crime rates, etc.) Moreover, the most commonly used statistical methods are designed for samples that comprise less than 10% of the population, whereas our data comprise 90% of the population they were drawn from. Since we have nearly sampled the entire population of North Carolinian counties in 1987, the usual business of statistical inference -- trying to learn about a population based on a sample -- is not completely necessary in order to make meaningful claims about relationships between crime rate and other variables in North Carolina in 1987. Even supposing the relationships we discovered only hold for the 90 counties for which we have data (out of the 100 total in North Carolina), constituents will likely be persuaded that methods to reduce crime in these counties alone would be a sufficient goal in and of itself.
+First, we remind the reader that the data we were provided may not comprise a simple random sample of any broader population. We do not know if the counties included in the data set were truly randomly selected from among all counties in North Carolina in 1987, nor can we be confident that the measurements taken for the respective counties are independent.  We can imagine, for instance, that geographically close counties, could have mutually dependent crime rates. 
 
-The context, then, of standard errors and hypothesis tests, is a hypothetical scenario in which we imagine our data as a random sample of counties drawn from some theoretical infinite population of possible sets of measurements of each variable. Not merely an abstract exercise in multiverse theory, this approach allows us to consider how noise in our data might or might not be obscuring some "true" relationship between the factors we considered and crime rate.
+Second, the most commonly used statistical methods are designed for samples that comprise less than 10% of the population, whereas our data set includes 90% of the population of North Carolina counties in 1987. Given that we have nearly sampled the entire population, the usual business of statistical inference -- trying to learn about a population based on a sample -- is not completely necessary in order to make meaningful claims about the relationships among crime rate and other variables in the current case. Even supposing the relationships we discovered *only* hold for the 90 counties that we have data for, both the candidate and their constituents are likely to be satisfied with policies and programs that effectively reduce  crime in these counties alone.
 
-Finally, since our models were created after an initial exploration of the data, the evidence of our hypothesis tests is best viewed as a jumping-off point for future research. Were we given new data from another year or another state, or even data that were drawn randomly from multiple years or states, we could test hypotheses based on our current findings (e.g., that change in population density has a nonzero effect on crime rate). Even better would be the possibility to implement policy changes in some North Carolina counties but not others, creating an experiment of sorts. However, we advise that the general public might not take kindly to this approach.
+Third, the context of standard errors and hypothesis tests is a hypothetical scenario in which we imagine our data as a random sample of counties drawn from some theoretical infinite population of possible sets of measurements of each variable. Rather than being merely an abstract exercise in multiverse theory, this approach allows us to consider how noise in our data might or might not be obscuring some "true" relationship between the explanatory factors we considered and the outcome of crime rate.
+
+Finally, as our models were created after an initial exploration of the data, the evidence of our hypothesis tests is best viewed as a jumping-off point for future research. Were we given new data from another year or another state, or even data that were drawn randomly from multiple years or states, we could test hypotheses based on our current findings (e.g., that change in population density has a nonzero effect on crime rate). Even better would be the possibility to implement policy changes in some North Carolina counties but not others, creating an experiment of sorts. However, we advise that the general public might not take kindly to this latter approach.
 
 ## 5. Omitted Variables
 
-Although our Models 1 and 2 do provide some useful information that can inform government policy, there are a number of omitted variables that we did not have access to in this analysis that we suspect have meaningful associations with the crime rate. It is imperative that we name these variables and deduce the impact we believe they would have, or else we risk biasing our conclusions by considering only the variables we can measure.
+Although our Models 1 and 2 do provide some useful information that can inform government policy, there are a number of omitted variables that we did not have access to in this analysis that we suspect have meaningful associations with the crime rate. We must attempt to identify these variables and deduce the impact we believe they would have, or else we risk biasing our conclusions by considering only the variables we can measure.
 
-We believe that **socioeconomic diversity** is likely to have a strong association with crime rate. If a county has a mix of people who have ample resources and those who have very little, the disparity can create social tension. Furthermore, if those who do not have resources live in close proximity to those who have many, those without may be motivated to engage in crime to secure the resources they need from those who have them. We could measure socioeconomic diversity by measuring the gap between the 1st and 3rd quartiles of household income. We would expect a large gap to be associated with a high crime rate, and we would also expect a positive correlation between our measured income gap and density, as dense urban areas tend to have both wealthy and impoverished people living in close proximity. In this case, omitted variable bias is positive, and the fitted values would be lower for a given density value if we had socioeconomic diversity as a variable. This would diminish the effect of density, bringing the coefficient closer to zero.
+We expect that **household earnings** would be negatively correlated with crime, as wealthier areas typically have less crime. We would expect correlation between household earnings and density to be positive, because salaries are typically higher in cities. Therefore, omitted variable bias is negative, and if we controlled for household earnings, the fitted values for a given population density value would likely be higher. The negative omitted variable bias on a factor with a positive coefficient would make the predictive power of the affected variable greater.
 
-We believe that the **unemployment rate**, as well as the **rate of citizens not participating in the labor force**, in a county would likely have a positive association with crime. When people are unable to earn a living, they may not have meaningful ways to spend their time, and they might struggle to pay their basic living expenses, both of which are scenarios that could be associated with crime. We might expect the correlation between unemployment and percent young male to be positive, as many young people are students or otherwise not participating in the labor force. Therefore, omitted variable bias is positive, and the fitted values would be lower for a given percent young male value if we had unemployment rate. This would lower the effect of percent young male, bringing the coefficient closer to zero.
+Relatedly, we believe that **socioeconomic diversity** is likely to have a strong association with crime rate. If a county has a mix of people who have ample resources and those who have very little, the disparity can create social tension. Furthermore, if those who do not have resources live in close proximity to those who have many, those without may be motivated to engage in crime to secure the resources they need from those who have them. We could measure socioeconomic diversity by measuring the gap between the 1st and 3rd quartiles of household earnings (see below). We would expect a large gap to be associated with a high crime rate, and we would also expect a positive correlation between our measured income gap and population density, as dense urban areas tend to have both wealthy and impoverished people living in close proximity. In this case, omitted variable bias is positive, and the fitted values would be lower for a given population density value if we had socioeconomic diversity as a variable. This would diminish the effect of population density, bringing the coefficient closer to zero.
 
-Additionally, we anticipate that **educational attainment** for a county would likely have an impact on crime. If we added education level to a model, we would expect its coefficient to be negative, since when people have more education, they are more likely to have incomes and to contribute meaningfully to society, which seem like conditions that are unlikely to be related to crime. We anticipate a positive correlation between education level and density, since urban areas tend to have higher education levels due to job opportunities and presence of higher education institutions. Therefore, omitted variable bias for education level is negative, and the fitted values for a given value of density would likely be higher if we could control for education level. A negative omitted variable bias on a positive coefficient would only increase the coefficient, making the effect of density even greater.
+Connected with both earnings level and socioeconomic status is the **unemployment rate**, which we think would likely have a positive association with the crime rate. When people are unable to find or keep a job, they are likely to struggle to cover their living expenses or they may find themselves seeking meaningful ways to spend their time. We can imagine both of these scenarios contributing to an increase in the crime rate. We expect the correlation between the unemployment rate and percent of young males to be positive, as many young men do not participate in the labor force. Therefore, the omitted variable bias is positive, and the fitted values would be lower for a given percent young male value if we had data on the unemployment rate. This would lower the effect of percent young male on crime rate, bringing the coefficient closer to zero.
 
-We expect that **household earnings** would be negatively correlated with crime, since wealthier areas typically have less crime. We would expect correlation between household earnings and density to be positive, because salaries are typically higher in cities. Therefore, omitted variable bias is negative, and if we controlled for household earnings, the fitted values for a given density value would likely be higher. As with mean education value, the negative omitted variable bias on a factor with a positive coefficient would only make the effect of density greater.
+People's ability to secure successful employment is likely to be associated with **educational attainment**, and thus this variable also seems likely have potential impact on the crime rate. If we added highest education level to a model, we would expect its coefficient with regard to crime to be negative; when people have more education, they are more likely to have an adequate income and possess skills or abilities that facilitate their contributing meaningfully to society. We anticipate a positive correlation between education level and population density, as urban areas tend to have higher education levels due to job opportunities and the presence institutions of higher education. Therefore, the omitted variable bias for education level is negative, and the fitted values for a given value of population density would likely be higher if we could control for education level. That is, a negative omitted variable bias on a positive coefficient would only increase the coefficient, making the effect of population density even greater.
 
-**Infrastructure quality** would be negatively correlated with crime since areas with well developed infrastructure leave people less desperate to commit crime. We would expect a positive correlation between infrastructure quality and tax per capita since taxes are used to fund the infrastructure development.  Therefore, the omitted variable bias for infrastructure quality is negative, and the fitted values for a given value of tax per capita would be higher if we controlled for infrastructure quality.
+Beyond factors related to people's ability to provide for their living needs without engaging in crime, we think there are several important community-centered variables to be considered. 
+First, **infrastructure quality** would be negatively correlated with crime, as areas with well developed infrastructure make it easier for people to live, work, and play with a minimum of environmental stress. We would expect a positive correlation between infrastructure quality and tax per capita as taxes are used to fund the infrastructure development.  Therefore, the omitted variable bias for infrastructure quality is negative, and the fitted values for a given value of tax per capita would be higher if we controlled for infrastructure quality. Second, we expect **community membership** to be negatively correlated with the crime rate, as a sense of belonging in one's community seems likely to reduce the desire to harm that community through negative behaviors like engaging in crime.  We could expect a negative correlation between community membership and the percent of young males, given that young males are typically moving through a city and not planting roots. Perhaps the more obvious correlation is a negative one with population density, because community membership is harder to develop when there are many people to know.  Either way, the omitted variable bias for community membership would be positive. We expect that the fitted values for a given value of percent young male or population density could be lower if we controlled for community membership, making the effect of percent young male less extreme, closer to zero. We note also that community membership would be a challenging variable to measure accurately. Third, we believe **negative police interaction** to be positively correlated with crime, and positively correlated with police per capita, leading to a positive omitted variable bias. This leads to fitted values for a given value of police per capita to be lower, if we controlled for negative police interaction, making the effect of police per capita less extreme.
 
-We expect **community membership** to be negatively correlated with crime since a sense of belonging is presumed to reduce the desire to commit crime.  We could expect a negative correlation between community membership and the percent of young males since young males are typically moving through a city and not planting roots. Perhaps the more obvious correlation is a negative one with density, since community membership is harder when there are too many people to know.  Either way, the omitted variable bias for community membership would be positive. We expect that the fitted values for a given value of percent young male or population density could be lower if we controlled for community membership, making the effect of percent young male less extreme, closer to zero. We note also that community membership would be a challenging variable to measure accurately.
+Somewhat connected to both the wealth of an area and the strength of community in an area is the omitted variable of **tourism**. We expect tourism to be negatively correlated with crime rate, given that it tends to strengthen the local economy, leading to less crime.  We also expect tourism to be positively correlated with **west** and the coastal region (including counties like Dare), as these areas have lots of tourist activity in the way of national parks and other attractions. This would lead to a negative omitted variable bias.  If we controlled for tourism, we expect the fitted values for a given value of west to be higher, making the effect of **west** closer to zero.
 
-Further, we believe **negative police interaction** to be positively correlated with crime, and positively correlated with police per capita, leading to a positive omitted variable bias. This leads to fitted values for a given value of police per capita to be lower, if we controlled for negative police interaction, making the effect of police per capita less extreme.
+Lastly, we believe cultural values like **religious faith** may play a role in the crime rate. For example, if the people living in a particular region report a strong religious faith or high levels of religious activity, they may be less likely to engage in crime, because many faiths have specific prohibitions against engaging in violence, stealing, damaging what belongs to others, and other illegal behavior. In other words, higher levels of religious beliefs or activity should negatively correlated with crime rate. Moreover, we suspect that the more uniform the religious faith in a region, the more robust this effect should be.  This is because religious differences in a community can create social conflict, and such conflict may motivate crime against those perceived as "other". We note that shared cultural values, such as religious faith, may represent a form of **community membership**, discussed above. 
 
-**Tourism** is a surprising, but very interesting, omitted variable. We noted it by way of an anomalous data point in Dare county. We expect tourism to be negatively correlated with crime since it will increase the strength of a local economy, leading to less crime.  We also expect tourism to be positively correlated with **west** since western counties have lots of tourist activity in the way of the National Park and other attractions. This would lead to a negative omitted variable bias.  If we controlled for tourism, we expect the fitted values for a given value of west to be higher, making the effect of west closer to zero.
-
-Lastly, we believe cultural values like **religious faith** may play a role in the crime rate.  For example, if the people living in a particular region report a strong religious faith or high levels of religious activity, they may be less likely to engage in crime, because many faiths have specific prohibitions against engaging in violence, stealing, damaging what belongs to others, and other illegal behavior. In other words, higher levels of religious beliefs or activity should negatively correlated with crime rate. Moreover, we suspect that the more uniform the religious faith in a region, the more robust this effect should be.  This is because religious differences in a community can create social conflict, and such conflict may motivate crime against those perceived as "other". We note that shared cultural values, such as religious faith, may represent a form of **community membership**, discussed above. 
-
-The discussion of omitted variables, however, is speculative, and should be reinforced with research. Ideally, this research would include randomized, controlled trials where possible.
+We note that this discussion of omitted variables is speculative and should be reinforced with research. Ideally, this research would include randomized, controlled trials where possible.
 
 ## 6. Conclusion
+Based on our regression analysis of the available data, we find that population density, the percentage of young males, police per capita, probability of arrest, probability of conviction, and percent minority population explain the majority of the variation in crime rate in North Carolina in the late 1980s. However, we suspect several endogenous variables' effects to be contained in those variables, such as community membership, unemployment rate, and educational attainment.   
 
-Based on our regression analysis of the available data, we find that population density, the percentage of young males, police per capita, probability of arrest, probability of conviction, and percent minority population explain the majority of the variation in crime rate in North Carolina in the late 1980s. However, we suspect several endogenous variable's effects to be contained in those variables, such as community membership, unemployment rate, and educational attainment.   
-
-Based on this analysis, we generate several policy suggestions applicable to candidates seeking or defending office in North Carolina. Specifically, candidates are advised to pursue programs that increase public access to key resources, encourage community involvement, and decrease perceptions of social injustice. Moreover, we encourage the candidates to discuss their crime reduction plans from the perspective of reducing personal crime, including violent crime, because such crimes are typically of greater concern to constituents than property crimes and are likely to generate voting behavior that favors the candidate.
+Based on this analysis, we have several policy suggestions applicable to candidates seeking or defending office in North Carolina. Specifically, candidates are advised to pursue programs that increase public access to key resources, encourage community involvement, and decrease perceptions of social injustice. Moreover, we encourage the candidates to discuss their crime reduction plans from the perspective of reducing personal crime, including violent crime, because such crimes are typically of greater concern to constituents than property crimes and are likely to generate voting behavior that favors the candidate.
 
 Although we believe our analysis supports our recommendations well, it does have some important limitations. First, the data are reported by county, which is a rather coarse measure for examining crime rate and the variables that influence it. It seems unlikely, for example, that population density and tax per capita are evenly distributed across a single county, so potentially meaningful variations in these variables are not transparent at the county level. Similarly, some major metropolitan areas stretch across multiple counties, and their police forces and court systems are accustomed to interacting with and accommodating one another.  As such, the behaviors of the police and courts might appear more similar in these counties, when this is actually an artifact of the city size. Second, our data set is limited to North Carolina counties in 1987.  Not only is this data more than 30 years old, but it is restricted to a specific state at a very specific time.  As such, we cannot generalize our findings to other states or years, or even test any hypotheses we might generate. Third, we have limited information about how the data were collected, recorded, or prepared prior to being delivered to us.  In the absence of this information, we cannot assess the quality of the data or develop clear strategies for addressing in weaknesses that may have resulted from the collection methodology. Lastly, the counties that are omitted from the data set appear to be those with lower population.  Given that population density has proven to be an important variable in our models, it would be useful to have data from these counties to make sure our understanding of this variable is as complete and accurate as possible. 
 
