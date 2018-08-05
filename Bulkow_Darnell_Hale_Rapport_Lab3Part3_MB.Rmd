@@ -307,12 +307,10 @@ Next, we evaluate the Cook's Distance for the residuals by examining the residua
 
 ```{r fig.height=3, fig.width=5}
 layout(matrix(c(1,2), 1, 2, byrow = TRUE))
-plot(model_1, which= 5,
-     caption = "", main = "Residuals vs Leverage\n for Model 1 (untransformed)", 
-     cex.main = .9, cex.lab=.75, cex.axis = .75)
-plot(model_1_log, which = 5,
-     caption = "", main = "Residuals vs Leverage \n for Model 1 (log)", 
-     cex.main = .9, cex.lab=.75, cex.axis = .75)
+plot(model_1, which= 5, main = "Residuals vs Leverage\n for Model 1 (untransformed)",
+     caption = "", cex.main = .9, cex.lab=.75, cex.axis = .75)
+plot(model_1_log, which = 5, main = "Residuals vs Leverage \n for Model 1 (log)",
+     caption = "", cex.main = .9, cex.lab=.75, cex.axis = .75)
 ```
 
 In both versions of Model 1, we find one point (i.e., the one corresponding to Dare county) that has a Cook's Distance greater than 1. As noted previously, Dare county has substantially higher tax per capita than other North Carolina counties, which we attribute to tax revenue from tourism. As such, the deviation of this single case is understandable and does not warrant its removal.
@@ -507,8 +505,7 @@ For this model, we include every variable in the data set.  This is done to set 
 # Build Model 4
 model_4 = lm(crmrte ~ density + taxpc + pctymle 
              + west + polpc + prbarr + prbconv + pctmin80 
-             + central + avgsen + prbpris 
-             + urban + wcon + wtuc + wtrd + wfir + wser 
+             + central + avgsen + prbpris + urban + wcon + wtuc + wtrd + wfir + wser 
              + wmfg + wfed + wsta + wloc + mix, 
              data = df_clean)
 ```
@@ -517,8 +514,7 @@ We refer the reader to **Table 3** for the details of this model, but note that 
 
 ```{r fig.height=3, fig.width=5}
 # Evaluate influence plot
-plot(model_4, which = 5,
-     cex.main = 1, cex.lab=.75, cex.axis = .75)
+suppressWarnings(plot(model_4, which = 5, cex.main = 1, cex.lab=.75, cex.axis = .75))
 ```
 
 
@@ -526,7 +522,7 @@ plot(model_4, which = 5,
 ```{r}
 coeftest(model_4, vcov = vcovHC)
 ```
-As with Model 3, we see that none of the new variables are statistically significant at the .05 level. More importantly, we observe that the statistical significance of several of our Model 1 and 2 variables -- including **polpc**, **prbarr**, **prbconv**, **pctmin80**, **pctymle**, and **density** -- has decreased as a result of these new variables being added. This suggests that the effect of these established variables has been absorbed by the new variables, although the mechanism(s) of this change are not transparent. 
+As with Model 3, we see that none of the new variables are statistically significant at the 0.05 level. More importantly, we observe that the statistical significance of several of our Model 1 and 2 variables -- including **polpc**, **prbarr**, **prbconv**, **pctmin80**, **pctymle**, and **density** -- has decreased as a result of these new variables being added. This suggests that the effect of these established variables has been absorbed by the new variables, although the mechanism(s) of this change are not transparent. 
 
 Before concluding our statistical analysis for Model 4, we think it would be useful to explore whether any of the explanatory variables are jointly significant with regard to the crime rate. This can be determined using an *F*-test. Specifically, we will create a restricted model containing only the statistically significant covariates, and compare this restricted model to the unrestricted Model 4 to see if the combined effect of Model 4's individually insignificant variables changes to become statistically significant.
 
@@ -539,17 +535,9 @@ waldtest(model_4, restricted_model, vcov=vcovHC)
 The *F*-test reveals that even the combined statistical significance of the 16 additional variables in the unrestricted Model 4 (*p* = 0.61) is not enough to suggest their joint statistical significance. As such, we fail to reject the null hypothesis that these additional factors have no association with crime rate. 
 
 ### 4.5 Model 5
-Lastly, we return to our face-to-face crime rate and attempt a model using it as the outcome variable. As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the the results for Model 5 and Model 1 will be very similar, as **crmrte** and **ftfcrmrte** are closely associated:
+Lastly, we return to our face-to-face crime rate and attempt a model using it as the outcome variable. As previously noted, the purpose of this model is to determine the extent to which Model 1, intended to predict the general crime rate, effectively extends to predict the face-to-face crime rate. Our expectation is the results for Model 5 and Model 1 will be very similar, as **crmrte** and **ftfcrmrte** are closely associated.
 
-```{r fig.height=3, fig.width=5}
-plot(crmrte ~ ftfcrmrte, data = df_clean,
-     main = "Overall Crime vs Face-to-Face Crime",
-     xlab = "Face-to-face Crime Rate",
-     ylab = "Overall Crime Rate",
-     cex.main = 1, cex.lab=.75, cex.axis = .75)
-```
-
-```{r fig.height=3, fig.width=5}
+```{r fig.height=2.8, fig.width=5}
 # Build Model 5
 model_5 <- lm(ftfcrmrte ~ density + taxpc + pctymle, data=df_clean)
 ```
@@ -557,13 +545,25 @@ model_5 <- lm(ftfcrmrte ~ density + taxpc + pctymle, data=df_clean)
 Implementation of Model 5 shows that population density, tax per capita, and the percentage of young males in the population explain approximately 62% of the variation in the face-to-face crime rate; this is almost identical to their predictive power relative to general crime rate. 
 The results of this analysis are summarized in **Table 3**.
 
-Below, we see that the leverage plot for Model 5 is virtually identical to that for Model 1. 
+Below, we show the close association of **crmrte** and **ftfcrmrte**, and we see that the leverage plot for Model 5 is virtually identical to that for Model 1. 
 
 ```{r fig.height=3, fig.width=5}
+layout(matrix(c(1,2), 1, 2, byrow = TRUE))
+
+# Show association of crmrte and ftfcrmrte
+plot(crmrte ~ ftfcrmrte, data = df_clean, 
+     main = "Overall Crime \n vs Face-to-Face Crime",
+     xlab = "Face-to-face Crime Rate", 
+     ylab = "Overall Crime Rate",
+     cex.main = .75, cex.lab=.75, cex.axis = .75)
+
 # Evaluate influence plot
-suppressWarnings(plot(model_5, which = 5))
+suppressWarnings(plot(model_5, which = 5, caption = "", 
+                      main = "Residuals vs Leverage", 
+                      cex.main = .75, cex.lab = .75, cex.axis = .75))
 ```
-  
+\%nbsp
+
 #### Statistical Inference and Interpretation of Model 5
 
 ```{r}
